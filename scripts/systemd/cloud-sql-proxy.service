@@ -1,0 +1,25 @@
+[Unit]
+Description=Cloud SQL Auth Proxy (Discord Casino)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bot
+WorkingDirectory=/home/bot/discord-casino
+# Load env vars from project .env (INSTANCE_CONNECTION_NAME, DATABASE_URL, etc.)
+EnvironmentFile=/home/bot/discord-casino/.env
+# Explicitly set GOOGLE_APPLICATION_CREDENTIALS if using sql-proxy.json here
+Environment=GOOGLE_APPLICATION_CREDENTIALS=/home/bot/discord-casino/sql-proxy.json
+# Use our wrapper which reads .env and passes the instance name correctly
+ExecStart=/usr/bin/node /home/bot/discord-casino/scripts/sql-proxy.mjs
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=full
+# ProtectHome=true prevents access to /home; disable so we can cd into /home/bot
+ProtectHome=false
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

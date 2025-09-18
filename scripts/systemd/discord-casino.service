@@ -1,0 +1,19 @@
+[Unit]
+Description=Discord Casino Bot
+After=network-online.target cloud-sql-proxy.service
+Wants=network-online.target cloud-sql-proxy.service
+
+[Service]
+Type=simple
+User=bot
+WorkingDirectory=/home/bot/discord-casino
+EnvironmentFile=/home/bot/discord-casino/.env
+ExecStart=/usr/bin/node index.mjs
+Restart=always
+RestartSec=5
+# Uncomment if your bot writes logs to files inside the repo
+# ReadWritePaths=/home/bot/discord-casino
+
+[Install]
+WantedBy=multi-user.target
+

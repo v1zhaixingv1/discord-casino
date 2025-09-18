@@ -1,0 +1,22 @@
+# Environment
+.env
+.env.*
+
+# Database files
+casino.db
+casino.db-*
+*.bak
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Cloud SQL local credentials (do not commit keys)
+sql-proxy.json

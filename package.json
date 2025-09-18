@@ -1,0 +1,37 @@
+{
+  "name": "discord-casino",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node index.mjs",
+    "start:api": "node api.mjs",
+    "deploy": "node deploy-commands.mjs",
+    "env": "node check-env.mjs",
+    "api:keys": "node api-cli.mjs",
+    "restart": "bash scripts/restart.sh",
+    "sql:proxy": "node scripts/sql-proxy.mjs",
+    "sql:migrate": "psql \"$DATABASE_URL\" -f scripts/pg-schema.sql",
+    "sql:migrate:node": "node scripts/migrate.mjs",
+    "sql:createdb": "node scripts/create-db.mjs",
+    "sql:up": "node -e 'console.log(\"Run these in separate terminals: npm run sql:proxy ; npm run sql:createdb && npm run sql:migrate:node\")'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "A Discord casino bot with chips, credits, and mini-games.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "cors": "^2.8.5",
+    "discord.js": "^14.22.1",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "pg": "^8.16.3"
+  }
+}
