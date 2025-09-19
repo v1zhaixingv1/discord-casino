@@ -40,7 +40,7 @@ import { getUserBalances } from './db.auto.mjs';
 app.get('/api/v1/guilds/:guildId/users/:discordId/balance', auth([]), async (req, res) => {
     const { guildId, discordId } = req.params;
     if (req.apiKey.guildId !== guildId) return res.status(403).json({ error: 'guild_mismatch' });
-    const bal = await getUserBalances(discordId);
+    const bal = await getUserBalances(guildId, discordId);
     res.json(bal);
 });
 
@@ -55,7 +55,7 @@ app.post('/api/v1/guilds/:guildId/users/:discordId/chips/grant', auth(['chips:gr
     if (!Number.isInteger(amount) || amount <= 0) return res.status(400).json({ error: 'bad_amount' });
 
     try {
-        const { chips, house } = await transferFromHouseToUser(discordId, amount, reason || 'api grant', `api:${req.apiKey.id}`);
+        const { chips, house } = await transferFromHouseToUser(guildId, discordId, amount, reason || 'api grant', `api:${req.apiKey.id}`);
         res.json({ chips, house });
     } catch (e) {
         if (e.message === 'INSUFFICIENT_HOUSE') return res.status(409).json({ error: 'insufficient_house' });
@@ -70,7 +70,7 @@ app.post('/api/v1/guilds/:guildId/house/add', auth(['house:add']), async (req, r
     if (req.apiKey.guildId !== guildId) return res.status(403).json({ error: 'guild_mismatch' });
     if (!Number.isInteger(amount) || amount <= 0) return res.status(400).json({ error: 'bad_amount' });
     try {
-        const house = await addToHouse(amount, reason || 'api house add', `api:${req.apiKey.id}`);
+        const house = await addToHouse(guildId, amount, reason || 'api house add', `api:${req.apiKey.id}`);
         res.json({ house });
     } catch (e) {
         res.status(500).json({ error: 'server_error' });
@@ -84,7 +84,7 @@ app.post('/api/v1/guilds/:guildId/users/:discordId/chips/take', auth(['chips:tak
     if (req.apiKey.guildId !== guildId) return res.status(403).json({ error: 'guild_mismatch' });
     if (!Number.isInteger(amount) || amount <= 0) return res.status(400).json({ error: 'bad_amount' });
     try {
-        const { chips, house } = await takeFromUserToHouse(discordId, amount, reason || 'api take to house', `api:${req.apiKey.id}`);
+        const { chips, house } = await takeFromUserToHouse(guildId, discordId, amount, reason || 'api take to house', `api:${req.apiKey.id}`);
         res.json({ chips, house });
     } catch (e) {
         if (e.message === 'INSUFFICIENT_USER') return res.status(409).json({ error: 'insufficient_user' });
@@ -99,7 +99,7 @@ app.post('/api/v1/guilds/:guildId/users/:discordId/chips/burn', auth(['chips:bur
     if (req.apiKey.guildId !== guildId) return res.status(403).json({ error: 'guild_mismatch' });
     if (!Number.isInteger(amount) || amount <= 0) return res.status(400).json({ error: 'bad_amount' });
     try {
-        const { chips } = await burnFromUser(discordId, amount, reason || 'api burn chips', `api:${req.apiKey.id}`);
+        const { chips } = await burnFromUser(guildId, discordId, amount, reason || 'api burn chips', `api:${req.apiKey.id}`);
         res.json({ chips });
     } catch (e) {
         if (e.message === 'INSUFFICIENT_USER') return res.status(409).json({ error: 'insufficient_user' });
@@ -126,7 +126,7 @@ app.post('/api/v1/guilds/:guildId/users/:discordId/credits/grant', auth(['credit
     if (req.apiKey.guildId !== guildId) return res.status(403).json({ error: 'guild_mismatch' });
     if (!Number.isInteger(amount) || amount <= 0) return res.status(400).json({ error: 'bad_amount' });
     try {
-        const { credits } = await grantCredits(discordId, amount, reason || 'api grant credits', `api:${req.apiKey.id}`);
+        const { credits } = await grantCredits(guildId, discordId, amount, reason || 'api grant credits', `api:${req.apiKey.id}`);
         res.json({ credits });
     } catch (e) {
         res.status(500).json({ error: 'server_error' });
@@ -140,7 +140,7 @@ app.post('/api/v1/guilds/:guildId/users/:discordId/credits/burn', auth(['credit:
     if (req.apiKey.guildId !== guildId) return res.status(403).json({ error: 'guild_mismatch' });
     if (!Number.isInteger(amount) || amount <= 0) return res.status(400).json({ error: 'bad_amount' });
     try {
-        const { credits } = await burnCredits(discordId, amount, reason || 'api burn credits', `api:${req.apiKey.id}`);
+        const { credits } = await burnCredits(guildId, discordId, amount, reason || 'api burn credits', `api:${req.apiKey.id}`);
         res.json({ credits });
     } catch (e) {
         if (e.message === 'INSUFFICIENT_USER_CREDITS') return res.status(409).json({ error: 'insufficient_user_credits' });
