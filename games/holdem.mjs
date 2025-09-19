@@ -1056,6 +1056,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
       type: ChannelType.GuildText,
       parent: casino_category_id,
       reason: `Hold'em table by ${interaction.user.tag}`,
+      // reason: `Hold'em table by Kitten`,
       permissionOverwrites: overwrites
     });
   } catch (e) {
@@ -1066,6 +1067,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
         type: ChannelType.GuildText,
         parent: casino_category_id,
         reason: `Hold'em table by ${interaction.user.tag} (fallback without overwrites)`
+        // reason: `Hold'em table by Kitten (fallback without overwrites)`
       });
     } catch (err) {
       console.error('holdem channel create fallback error:', err);
