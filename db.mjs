@@ -634,13 +634,15 @@ export const escrowCreditMany = escrowPayoutMany;
 export function settleRake(tableId, amount) {
   const amt = Math.max(0, Number(amount) || 0);
   if (amt <= 0) return 0;
+  const gid = guildForTable(tableId);
   const tx = db.transaction(() => {
-    updateHouseStmt.run(amt);
-    insertTxnStmt.run('HOUSE', amt, `holdem rake ${tableId}`, null, 'CHIPS');
-    insertTxnStmt.run(`POT:${tableId}`, -amt, `holdem rake ${tableId}`, null, 'CHIPS');
+    ensureGuildHouse(gid);
+    updateHouseStmt.run(amt, gid);
+    recordTxn(gid, 'HOUSE', amt, `holdem rake ${tableId}`, null, 'CHIPS');
+    recordTxn(gid, `POT:${tableId}`, -amt, `holdem rake ${tableId}`, null, 'CHIPS');
   });
   tx();
-  return getHouseStmt.get().chips;
+  return getHouseBalance(gid);
 }
 
 export function finalizeHoldemHand(handId, { board, winnersJson, rakePaid }) {
