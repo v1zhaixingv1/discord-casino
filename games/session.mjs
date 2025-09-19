@@ -98,7 +98,7 @@ export function sessionLineFor(guildId, userId) {
 // UI helper: show current balances and session line
 export async function buildPlayerBalanceField(guildId, userId, name = 'Player Balance') {
   const fmt = new Intl.NumberFormat('en-US');
-  const { chips, credits } = await getUserBalances(userId);
+  const { chips, credits } = await getUserBalances(guildId, userId);
   const sess = sessionLineFor(guildId, userId);
   const val = [
     `Chips: **${chipsAmount(chips)}**`,
@@ -122,7 +122,7 @@ export async function buildSessionEndEmbed(guildId, userId) {
   const game = s.gameLabel || (s.type ? String(s.type).toUpperCase() : 'Game');
   const e = new EmbedBuilder().setColor(0x2b2d31);
   try {
-    const { chips, credits } = await getUserBalances(userId);
+    const { chips, credits } = await getUserBalances(guildId, userId);
     const fmt = new Intl.NumberFormat('en-US');
     const lines = [
       `Game: ${game}`,
@@ -155,12 +155,12 @@ export function buildTimeoutField(guildId, userId, name = '⏳ Timeout') {
   return { name, value: `<t:${ts}:R>` };
 }
 
-export async function burnUpToCredits(userId, stake, reason) {
+export async function burnUpToCredits(guildId, userId, stake, reason) {
   try {
     if (!Number.isInteger(stake) || stake <= 0) return 0;
-    const { credits } = await getUserBalances(userId);
+    const { credits } = await getUserBalances(guildId, userId);
     const toBurn = Math.min(stake, credits);
-    if (toBurn > 0) await burnCredits(userId, toBurn, reason, null);
+    if (toBurn > 0) await burnCredits(guildId, userId, toBurn, reason, null);
     return toBurn;
   } catch {
     return 0;
@@ -179,13 +179,13 @@ export async function endActiveSessionForUser(interaction, cause = 'new_command'
     // Clean up per-game state; treat as loss where stakes already moved to house
     if (s.type === 'ridebus') {
       const st = ridebusGames.get(k);
-      if (st) { try { await burnUpToCredits(userId, Number(st.creditsStake) || 0, `ridebus expired (${cause})`); } catch {} }
+      if (st) { try { await burnUpToCredits(guildId, userId, Number(st.creditsStake) || 0, `ridebus expired (${cause})`); } catch {} }
       const net = (s.houseNet || 0) + (st?.chipsStake || 0);
       try { await postGameSessionEndByIds(interaction.client, guildId, userId, { game: 'Ride the Bus', houseNet: net }); } catch {}
       ridebusGames.delete(k);
     } else if (s.type === 'blackjack') {
       const st = blackjackGames.get(k);
-      if (st) { try { await burnUpToCredits(userId, Number(st.creditsStake) || 0, `blackjack expired (${cause})`); } catch {} }
+      if (st) { try { await burnUpToCredits(guildId, userId, Number(st.creditsStake) || 0, `blackjack expired (${cause})`); } catch {} }
       const chipsStake = st && st.split && Array.isArray(st.hands)
         ? (st.hands?.[0]?.chipsStake || 0) + (st.hands?.[1]?.chipsStake || 0)
         : (st?.chipsStake || 0);
