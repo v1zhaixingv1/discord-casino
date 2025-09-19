@@ -348,7 +348,7 @@ client.on(Events.InteractionCreate, async interaction => {
       // Modular command dispatch
       const handler = commandHandlers[interaction.commandName];
       if (typeof handler === 'function') {
-        const ctx = buildCommandContext();
+        const ctx = buildCommandContext(interaction);
         return handler(interaction, ctx);
       }
       // Fallback if no handler registered
@@ -357,58 +357,58 @@ client.on(Events.InteractionCreate, async interaction => {
       }
     // ========== BUTTONS ==========
     else if (interaction.isButton() && interaction.customId.startsWith('rb|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/ridebusButtons.mjs');
       return mod.default(interaction, ctx);
     }
     // Blackjack buttons
     else if (interaction.isButton() && interaction.customId.startsWith('bj|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/blackjackButtons.mjs');
       return mod.default(interaction, ctx);
     }
     // Slots buttons
     else if (interaction.isButton() && interaction.customId.startsWith('slots|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/slotsButtons.mjs');
       return mod.default(interaction, ctx);
     }
     // Dice War buttons
     else if (interaction.isButton() && interaction.customId.startsWith('dice|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/diceWarButtons.mjs');
       return mod.default(interaction, ctx);
     }
     // Roulette buttons
     else if (interaction.isButton() && interaction.customId.startsWith('rou|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/rouletteButtons.mjs');
       return mod.default(interaction, ctx);
     }
 
     // Hold'em buttons
     else if (interaction.isButton() && interaction.customId.startsWith('hold|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/holdemButtons.mjs');
       return mod.default(interaction, ctx);
     }
 
     // Request buttons
     else if (interaction.isButton() && interaction.customId.startsWith('req|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       return onRequestButtons(interaction, ctx);
     }
 
     // Roulette select menus
     else if (interaction.isStringSelectMenu() && interaction.customId === 'rou|type') {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/rouletteTypeSelect.mjs');
       return mod.default(interaction, ctx);
     }
 
     // Help select menu
     else if (interaction.isStringSelectMenu() && interaction.customId === 'help|section') {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       return onHelpSelect(interaction, ctx);
     }
 
@@ -420,20 +420,20 @@ client.on(Events.InteractionCreate, async interaction => {
 
     // Roulette modal submits
     else if (interaction.isModalSubmit() && interaction.customId.startsWith('rou|modal|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/rouletteModal.mjs');
       return mod.default(interaction, ctx);
     }
 
     // Hold'em bet modal submits
     else if (interaction.isModalSubmit() && interaction.customId.startsWith('hold|bet|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/holdemBetModal.mjs');
       return mod.default(interaction, ctx);
     }
     // Hold'em join modal submits
     else if (interaction.isModalSubmit() && interaction.customId.startsWith('hold|join|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/holdemJoinModal.mjs');
       return mod.default(interaction, ctx);
     }
