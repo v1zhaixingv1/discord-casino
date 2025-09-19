@@ -145,6 +145,82 @@ try { db.prepare(`SELECT holdem_rake_cap FROM guild_settings LIMIT 1`).get(); } 
 }
 
 
+function migrateUsersToGuildScoped() {
+  const info = db.prepare("PRAGMA table_info(users)").all();
+  if (!info.length) return;
+  const hasGuildId = info.some(r => r.name === 'guild_id');
+  const hasLegacyId = info.some(r => r.name === 'id');
+  const pkOrder = info.filter(r => r.pk > 0).map(r => r.name).sort().join(',');
+  const hasCompositePk = pkOrder === 'discord_id,guild_id';
+  if (hasGuildId && !hasLegacyId && hasCompositePk) return;
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users_tmp (
+      guild_id TEXT NOT NULL,
+      discord_id TEXT NOT NULL,
+      chips INTEGER NOT NULL DEFAULT 0,
+      credits INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (guild_id, discord_id)
+    );
+  `);
+  const insertLegacy = db.prepare(`
+    INSERT INTO users_tmp (guild_id, discord_id, chips, credits, created_at, updated_at)
+    SELECT @guild, discord_id, chips, credits, created_at, updated_at FROM users
+  `);
+  const migrate = db.transaction(() => {
+    insertLegacy.run({ guild: DEFAULT_GUILD_ID });
+    db.exec('DROP TABLE users');
+    db.exec('ALTER TABLE users_tmp RENAME TO users');
+  });
+  migrate();
+}
+
+function migrateTransactionsToGuildScoped() {
+  try { db.prepare('SELECT guild_id FROM transactions LIMIT 1').get(); return; } catch {}
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS transactions_tmp (
+      id INTEGER PRIMARY KEY,
+      guild_id TEXT NOT NULL,
+      account TEXT NOT NULL,
+      delta INTEGER NOT NULL,
+      reason TEXT,
+      admin_id TEXT,
+      currency TEXT NOT NULL DEFAULT 'CHIPS',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  const insertLegacy = db.prepare(`
+    INSERT INTO transactions_tmp (id, guild_id, account, delta, reason, admin_id, currency, created_at)
+    SELECT id, @guild, account, delta, reason, admin_id, currency, created_at FROM transactions
+  `);
+  const migrate = db.transaction(() => {
+    insertLegacy.run({ guild: DEFAULT_GUILD_ID });
+    db.exec('DROP TABLE transactions');
+    db.exec('ALTER TABLE transactions_tmp RENAME TO transactions');
+  });
+  migrate();
+}
+
+function seedGuildHouseFromLegacy() {
+  const existing = db.prepare('SELECT COUNT(*) AS n FROM guild_house').get()?.n || 0;
+  if (existing > 0) return;
+  let legacy = 0;
+  try {
+    const row = db.prepare('SELECT chips FROM house WHERE id = 1').get();
+    if (row && Number.isFinite(row.chips)) legacy = row.chips;
+  } catch {}
+  db.prepare('INSERT OR IGNORE INTO guild_house (guild_id, chips) VALUES (?, ?)').run(DEFAULT_GUILD_ID, legacy);
+}
+
+migrateUsersToGuildScoped();
+migrateTransactionsToGuildScoped();
+seedGuildHouseFromLegacy();
+db.prepare('INSERT OR IGNORE INTO guild_house (guild_id, chips) VALUES (?, 0)').run(DEFAULT_GUILD_ID);
+
+
 // --- PREPARED STATEMENTS ---
 // --- MIGRATION: move admin_roles -> mod_roles (idempotent) ---
 try {
