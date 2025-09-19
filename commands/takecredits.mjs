@@ -11,7 +11,7 @@ export default async function handleTakeCredits(interaction, ctx) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
   try {
-    const { credits } = await burnCredits(target.id, amount, reason, interaction.user.id);
+    const { credits } = await burnCredits(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
     await ctx.postCashLog(interaction, [
       `🔥 **Burn Credits**`,
       `User: <@${target.id}> • Amount: **${new Intl.NumberFormat('en-US').format(amount)}** credits${reason ? ` • Reason: ${reason}` : ''}`,
