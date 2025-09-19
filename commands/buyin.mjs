@@ -11,7 +11,7 @@ export default async function handleBuyIn(interaction, ctx) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
   try {
-    const { chips } = await mintChips(target.id, amount, reason, interaction.user.id);
+    const { chips } = await mintChips(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
     await ctx.postCashLog(interaction, [
       `🪙 **Buy-in**`,
       `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
