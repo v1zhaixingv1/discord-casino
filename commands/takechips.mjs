@@ -11,7 +11,7 @@ export default async function handleTakeChips(interaction, ctx) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
   try {
-    const { chips, house } = await takeFromUserToHouse(target.id, amount, reason, interaction.user.id);
+    const { chips, house } = await takeFromUserToHouse(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
     await ctx.postCashLog(interaction, [
       `🏦 **Take Chips to House**`,
       `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
