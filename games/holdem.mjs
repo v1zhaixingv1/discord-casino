@@ -1511,7 +1511,8 @@ export async function onHoldemBetModal(interaction, ctx) {
 export async function onHoldemJoinModal(interaction, ctx) {
   const parts = interaction.customId.split('|');
   const requester = parts[2];
-  const state = ensureTableInChannel(interaction.guild.id, interaction.channelId);
+  const guildId = interaction.guild.id;
+  const state = ensureTableInChannel(guildId, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
   if (interaction.user.id !== requester) return interaction.reply({ content: '❌ This join prompt is not for you.', ephemeral: true });
   const buyinStr = interaction.fields.getTextInputValue('buyin');
@@ -1523,7 +1524,7 @@ export async function onHoldemJoinModal(interaction, ctx) {
   }
   // Seat the player with escrowed Chips (pre-check balance)
   try {
-    const { chips } = await getUserBalances(interaction.user.id);
+    const { chips } = await getUserBalances(guildId, interaction.user.id);
     if ((chips||0) < buyin) return interaction.reply({ content: '❌ Not enough Chips for that buy-in.', ephemeral: true });
     await escrowAdd(state.channelId, interaction.user.id, buyin);
   } catch (e) {
