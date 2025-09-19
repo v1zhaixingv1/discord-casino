@@ -32,7 +32,7 @@ export default async function handleRequest(interaction, ctx) {
 
   let balText = '';
   try {
-    const { chips: reqChips, credits: reqCredits } = await getUserBalances(interaction.user.id);
+    const { chips: reqChips, credits: reqCredits } = await getUserBalances(interaction.guild?.id, interaction.user.id);
     const fmt = new Intl.NumberFormat('en-US');
     balText = `Chips: **${ctx.chipsAmount(reqChips)}**\nCredits: **${fmt.format(reqCredits)}**`;
   } catch {}
