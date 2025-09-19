@@ -235,21 +235,22 @@ const getModRolesStmt = db.prepare('SELECT role_id FROM mod_roles WHERE guild_id
 const insertModRoleStmt = db.prepare('INSERT OR IGNORE INTO mod_roles (guild_id, role_id) VALUES (?, ?)');
 const removeModRoleStmt = db.prepare('DELETE FROM mod_roles WHERE guild_id = ? AND role_id = ?');
 
-const ensureUserStmt = db.prepare('INSERT OR IGNORE INTO users (discord_id) VALUES (?)');
-const getUserStmt = db.prepare('SELECT chips, credits FROM users WHERE discord_id = ?');
-const addChipsStmt = db.prepare('UPDATE users SET chips = chips + ?, updated_at = CURRENT_TIMESTAMP WHERE discord_id = ?');
-const addCreditsStmt = db.prepare('UPDATE users SET credits = credits + ?, updated_at = CURRENT_TIMESTAMP WHERE discord_id = ?');
+const ensureUserStmt = db.prepare('INSERT OR IGNORE INTO users (guild_id, discord_id) VALUES (?, ?)');
+const getUserStmt = db.prepare('SELECT chips, credits FROM users WHERE guild_id = ? AND discord_id = ?');
+const addChipsStmt = db.prepare('UPDATE users SET chips = chips + ?, updated_at = CURRENT_TIMESTAMP WHERE guild_id = ? AND discord_id = ?');
+const addCreditsStmt = db.prepare('UPDATE users SET credits = credits + ?, updated_at = CURRENT_TIMESTAMP WHERE guild_id = ? AND discord_id = ?');
 
-const getHouseStmt = db.prepare('SELECT chips FROM house WHERE id = 1');
-const updateHouseStmt = db.prepare('UPDATE house SET chips = chips + ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1');
-const sumUserChipsStmt = db.prepare('SELECT COALESCE(SUM(chips), 0) AS total FROM users');
+const ensureHouseStmt = db.prepare('INSERT OR IGNORE INTO guild_house (guild_id) VALUES (?)');
+const getHouseStmt = db.prepare('SELECT chips FROM guild_house WHERE guild_id = ?');
+const updateHouseStmt = db.prepare('UPDATE guild_house SET chips = chips + ?, updated_at = CURRENT_TIMESTAMP WHERE guild_id = ?');
+const sumUserChipsStmt = db.prepare('SELECT COALESCE(SUM(chips), 0) AS total FROM users WHERE guild_id = ?');
 
-const insertTxnStmt = db.prepare('INSERT INTO transactions (account, delta, reason, admin_id, currency) VALUES (?, ?, ?, ?, ?)');
+const insertTxnStmt = db.prepare('INSERT INTO transactions (guild_id, account, delta, reason, admin_id, currency) VALUES (?, ?, ?, ?, ?, ?)');
 
 const topUsersStmt = db.prepare(`
   SELECT discord_id, chips
   FROM users
-  WHERE chips > 0
+  WHERE guild_id = ? AND chips > 0
   ORDER BY chips DESC, created_at ASC
   LIMIT ?
 `);
