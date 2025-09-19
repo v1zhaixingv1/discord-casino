@@ -439,7 +439,7 @@ client.on(Events.InteractionCreate, async interaction => {
     }
     // Hold'em custom table modal submits
     else if (interaction.isModalSubmit() && interaction.customId.startsWith('hold|custom|')) {
-      const ctx = buildCommandContext();
+      const ctx = buildCommandContext(interaction);
       const mod = await import('./interactions/holdemCustomModal.mjs');
       return mod.default(interaction, ctx);
     }
