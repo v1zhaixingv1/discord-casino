@@ -665,7 +665,3 @@ export function clearActiveRequest(guildId, userId) {
   return true;
 }
 
-export function gameWinWithCredits(discordId, amount, detail) {
-  // amount = winnings to pay in chips
-  return transferFromHouseToUser(discordId, amount, `game win (credits)${detail ? ': ' + detail : ''}`, null);
-}
