@@ -1,5 +1,8 @@
 # Discord Casino Bot
 
+Invite Bot to your server:
+https://discord.com/oauth2/authorize?client_id=1415454565687492780&permissions=551903325264&integration_type=0&scope=bot
+
 Discord bot for a lightweight casino economy with two currencies and multiple mini‑games.
 
 - Chips: backed by a shared House bank and used for all payouts.
