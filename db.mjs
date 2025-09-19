@@ -257,6 +257,10 @@ const topUsersStmt = db.prepare(`
   LIMIT ?
 `);
 
+const countUsersStmt = db.prepare('SELECT COUNT(*) AS n FROM users WHERE guild_id = ?');
+const resetUsersStmt = db.prepare('UPDATE users SET chips = 0, credits = 100, updated_at = CURRENT_TIMESTAMP WHERE guild_id = ?');
+const resetHouseExactStmt = db.prepare('UPDATE guild_house SET chips = 0, updated_at = CURRENT_TIMESTAMP WHERE guild_id = ?');
+
 function resolveGuildId(guildId) {
   return guildId || DEFAULT_GUILD_ID;
 }
