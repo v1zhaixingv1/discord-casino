@@ -581,14 +581,15 @@ export function escrowAdd(tableId, userId, amount) {
 
 export function escrowReturn(tableId, userId, amount) {
   if (!Number.isInteger(amount) || amount <= 0) return 0;
+  const gid = guildForTable(tableId);
   const tx = db.transaction(() => {
     const bal = getEscrowBalance(tableId, userId);
     const toReturn = Math.min(bal, amount);
     const newBal = bal - toReturn;
     setEscrowExactStmt.run(newBal, String(tableId), String(userId));
-    addChipsStmt.run(toReturn, String(userId));
-    insertTxnStmt.run(`ESCROW:${tableId}`, -toReturn, `holdem refund to ${userId}`, null, 'CHIPS');
-    insertTxnStmt.run(String(userId), toReturn, `holdem refund from escrow ${tableId}`, null, 'CHIPS');
+    addChipsStmt.run(toReturn, gid, String(userId));
+    recordTxn(gid, `ESCROW:${tableId}`, -toReturn, `holdem refund to ${userId}`, null, 'CHIPS');
+    recordTxn(gid, String(userId), toReturn, `holdem refund from escrow ${tableId}`, null, 'CHIPS');
   });
   tx();
   return getEscrowBalance(tableId, userId);
