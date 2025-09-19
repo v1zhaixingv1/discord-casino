@@ -36,15 +36,16 @@ export function rowButtons(ids) {
 
 // Start a new Ride the Bus session
 export async function startRideBus(interaction, bet) {
-  const { max_ridebus_bet = 1000 } = await getGuildSettings(interaction.guild.id) || {};
+  const guildId = interaction.guild?.id;
+  const { max_ridebus_bet = 1000 } = await getGuildSettings(guildId) || {};
   if (bet > max_ridebus_bet) return interaction.reply({ content: `❌ Max bet for Ride the Bus is **${chipsAmount(max_ridebus_bet)}**.`, ephemeral: true });
-  const { chips, credits } = await getUserBalances(interaction.user.id);
+  const { chips, credits } = await getUserBalances(guildId, interaction.user.id);
   const total = chips + credits;
   if (total < bet) {
     const fmt = new Intl.NumberFormat('en-US');
     return interaction.reply({ content: `❌ You don’t have enough funds for that bet. Credits: **${fmt.format(credits)}**, Chips: **${chipsAmount(chips)}**. Need: **${chipsAmount(bet)}**.`, ephemeral: true });
   }
-  const cover = await getHouseBalance();
+  const cover = await getHouseBalance(guildId);
   const maxPayout = bet * PAYOUT[4];
   if (cover < maxPayout) return interaction.reply({ content: `❌ House cannot cover a max payout of **${chipsAmount(maxPayout)}**. Try a smaller bet.`, ephemeral: true });
 
@@ -52,7 +53,7 @@ export async function startRideBus(interaction, bet) {
   const creditStake = Math.min(bet, credits);
   const chipStake = bet - creditStake;
   if (chipStake > 0) {
-    try { await takeFromUserToHouse(interaction.user.id, chipStake, 'ridebus buy-in (chips)', interaction.user.id); }
+    try { await takeFromUserToHouse(guildId, interaction.user.id, chipStake, 'ridebus buy-in (chips)', interaction.user.id); }
     catch { return interaction.reply({ content: '❌ Could not process buy-in.', ephemeral: true }); }
   }
 
