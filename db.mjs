@@ -597,13 +597,14 @@ export function escrowReturn(tableId, userId, amount) {
 
 export function escrowCommit(tableId, userId, handId, street, amount) {
   if (!Number.isInteger(amount) || amount <= 0) return getEscrowBalance(tableId, userId);
+  const gid = guildForTable(tableId);
   const tx = db.transaction(() => {
     const bal = getEscrowBalance(tableId, userId);
     if (bal < amount) throw new Error('ESCROW_INSUFFICIENT');
     setEscrowExactStmt.run(bal - amount, String(tableId), String(userId));
     insertCommitStmt.run(Number(handId)||0, String(userId), String(street||'UNK'), amount);
-    insertTxnStmt.run(`ESCROW:${tableId}`, -amount, `holdem commit ${street} from ${userId}`, null, 'CHIPS');
-    insertTxnStmt.run(`POT:${tableId}`, amount, `holdem commit ${street} from ${userId}`, null, 'CHIPS');
+    recordTxn(gid, `ESCROW:${tableId}`, -amount, `holdem commit ${street} from ${userId}`, null, 'CHIPS');
+    recordTxn(gid, `POT:${tableId}`, amount, `holdem commit ${street} from ${userId}`, null, 'CHIPS');
   });
   tx();
   return getEscrowBalance(tableId, userId);
