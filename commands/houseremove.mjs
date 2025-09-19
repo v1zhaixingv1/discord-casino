@@ -10,7 +10,8 @@ export default async function handleHouseRemove(interaction, ctx) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
   try {
-  const newBal = await removeFromHouse(amount, reason, interaction.user.id);
+  const guildId = interaction.guild?.id;
+  const newBal = await removeFromHouse(guildId, amount, reason, interaction.user.id);
     await ctx.postCashLog(interaction, [
       `🏦 **House Remove**`,
       `Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
