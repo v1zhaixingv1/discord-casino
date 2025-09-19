@@ -541,6 +541,12 @@ const getEscrowStmt = db.prepare('SELECT balance FROM holdem_escrow WHERE table_
 const setEscrowExactStmt = db.prepare('UPDATE holdem_escrow SET balance = ? WHERE table_id = ? AND user_id = ?');
 const insertCommitStmt = db.prepare('INSERT INTO holdem_commits (hand_id, user_id, street, amount) VALUES (?, ?, ?, ?)');
 const listEscrowByTableStmt = db.prepare('SELECT user_id, balance FROM holdem_escrow WHERE table_id = ? AND balance > 0');
+const getTableGuildStmt = db.prepare('SELECT guild_id FROM holdem_tables WHERE table_id = ?');
+
+function guildForTable(tableId) {
+  const row = getTableGuildStmt.get(String(tableId));
+  return row?.guild_id || DEFAULT_GUILD_ID;
+}
 
 export function ensureHoldemTable({ tableId, guildId, channelId, sb, bb, min, max, rakeBps, hostId }) {
   ensureTableStmt.run({ table_id: String(tableId), guild_id: String(guildId), channel_id: String(channelId), sb: Number(sb)||0, bb: Number(bb)||0, min: Number(min)||0, max: Number(max)||0, rake_bps: Number(rakeBps)||0, host_id: hostId ? String(hostId) : null });
