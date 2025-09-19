@@ -3,8 +3,8 @@ import { setTableRake, ensureTableInChannel, buildTableEmbed, tableButtons } fro
 import { setDefaultHoldemRake } from '../db.auto.mjs';
 
 export default async function handleSetRake(interaction, ctx) {
-  const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
-  if (!member?.permissions?.has(PermissionFlagsBits.Administrator)) {
+  const perms = interaction.memberPermissions ?? interaction.member?.permissions;
+  if (!perms?.has(PermissionFlagsBits.Administrator)) {
     return interaction.reply({ content: '❌ Discord Administrator permission required.', ephemeral: true });
   }
   const percent = interaction.options.getNumber ? interaction.options.getNumber('percent') : interaction.options.getInteger('percent');
