@@ -15,9 +15,11 @@ export default async function handleTakeChips(interaction, ctx) {
     await ctx.postCashLog(interaction, [
       `🏦 **Take Chips to House**`,
       `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
+      // `User: Kitten • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
       `User Chips (after): **${ctx.chipsAmount(chips)}** • House (after): **${ctx.chipsAmount(house)}**`
     ]);
     return interaction.reply({ content: `✅ Took **${ctx.chipsAmount(amount)}** from <@${target.id}> to the house${reason ? ` (${reason})` : ''}.`, ephemeral: true });
+    // return interaction.reply({ content: `✅ Took **${ctx.chipsAmount(amount)}** from Kitten to the house${reason ? ` (${reason})` : ''}.`, ephemeral: true });
   } catch (err) {
     if (err.message === 'INSUFFICIENT_USER') {
       return interaction.reply({ content: '❌ That user does not have enough chips.', ephemeral: true });
