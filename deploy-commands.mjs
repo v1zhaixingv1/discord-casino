@@ -281,4 +281,4 @@ for (const guildId of guildIds) {
 if (guildIds.length) {
   console.log('Guild overrides deploy instantly; global commands cover every other server.');
 }
-// Script: Register guild slash commands via Discord REST API
+// Script: Register global (and optional guild) slash commands via Discord REST API
