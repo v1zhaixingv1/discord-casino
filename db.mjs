@@ -612,6 +612,7 @@ export function escrowCommit(tableId, userId, handId, street, amount) {
 
 export function escrowPayoutMany(tableId, payouts) {
   if (!Array.isArray(payouts) || !payouts.length) return true;
+  const gid = guildForTable(tableId);
   const tx = db.transaction(() => {
     for (const p of payouts) {
       const userId = String(p.userId);
@@ -619,8 +620,8 @@ export function escrowPayoutMany(tableId, payouts) {
       if (amt <= 0) continue;
       // Credit back to table escrow (chips remain at the table, not wallet)
       upsertEscrowStmt.run(String(tableId), userId, amt);
-      insertTxnStmt.run(`POT:${tableId}`, -amt, `holdem payout to escrow for ${userId}`, null, 'CHIPS');
-      insertTxnStmt.run(`ESCROW:${tableId}`, amt, `holdem payout to ${userId}`, null, 'CHIPS');
+      recordTxn(gid, `POT:${tableId}`, -amt, `holdem payout to escrow for ${userId}`, null, 'CHIPS');
+      recordTxn(gid, `ESCROW:${tableId}`, amt, `holdem payout to ${userId}`, null, 'CHIPS');
     }
   });
   tx();
