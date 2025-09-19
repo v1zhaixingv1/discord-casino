@@ -6,6 +6,8 @@ const db = new Database(process.env.DB_PATH || './casino.db');
 db.pragma('journal_mode = WAL');
 db.pragma('synchronous = NORMAL');
 
+const DEFAULT_GUILD_ID = process.env.PRIMARY_GUILD_ID || process.env.GUILD_ID || 'global';
+
 // --- SCHEMA & MIGRATIONS ---
 db.exec(`
 -- Legacy: admin_roles has been renamed to mod_roles. Keep migration below.
