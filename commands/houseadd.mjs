@@ -9,7 +9,8 @@ export default async function handleHouseAdd(interaction, ctx) {
   if (!Number.isInteger(amount) || amount <= 0) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
-  const newBal = await addToHouse(amount, reason, interaction.user.id);
+  const guildId = interaction.guild?.id;
+  const newBal = await addToHouse(guildId, amount, reason, interaction.user.id);
   await ctx.postCashLog(interaction, [
     `🏦 **House Add**`,
     `Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
