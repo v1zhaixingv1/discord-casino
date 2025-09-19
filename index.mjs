@@ -237,7 +237,8 @@ client.once(Events.ClientReady, c => {
 });
 
 // Command registry and context for modular handlers
-function buildCommandContext() {
+function buildCommandContext(interaction) {
+  const guildId = interaction?.guild?.id || null;
   return {
     isAdmin,
     isOwnerRole,
@@ -245,11 +246,11 @@ function buildCommandContext() {
     formatChips,
     postCashLog: postCashLogMod,
     // DB helpers
-    getUserBalances,
-    burnCredits,
-    getHouseBalance,
-    transferFromHouseToUser,
-    takeFromUserToHouse,
+    getUserBalances: (userId) => getUserBalances(guildId, userId),
+    burnCredits: (userId, amount, reason, adminId) => burnCredits(guildId, userId, amount, reason, adminId),
+    getHouseBalance: () => getHouseBalance(guildId),
+    transferFromHouseToUser: (userId, amount, reason, adminId) => transferFromHouseToUser(guildId, userId, amount, reason, adminId),
+    takeFromUserToHouse: (userId, amount, reason, adminId) => takeFromUserToHouse(guildId, userId, amount, reason, adminId),
     // Session helpers and state
     keyFor,
     getActiveSession,
@@ -299,7 +300,8 @@ function buildCommandContext() {
     startBlackjack: (interaction, table, bet) => startBlackjackMod(interaction, table, bet),
     runSlotsSpin: (interaction, bet, key) => runSlotsSpinMod(interaction, bet, key),
     startRouletteSession: async (interaction) => startRouletteSessionMod(interaction),
-    MOD_ROLE_IDS
+    MOD_ROLE_IDS,
+    guildId
   };
 }
 
