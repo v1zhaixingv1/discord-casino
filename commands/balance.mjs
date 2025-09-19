@@ -5,7 +5,7 @@ export default async function handleBalance(interaction, ctx) {
   if (target.id !== interaction.user.id && !(await ctx.isAdmin(interaction))) {
     return interaction.reply({ content: '❌ Only moderators can view other users’ balances.', ephemeral: true });
   }
-  const { chips, credits } = await getUserBalances(target.id);
+  const { chips, credits } = await getUserBalances(interaction.guild?.id, target.id);
   const fmt = new Intl.NumberFormat('en-US');
   const header = target.id === interaction.user.id ? 'Your balance' : `Balance for <@${target.id}>`;
   return interaction.reply({
