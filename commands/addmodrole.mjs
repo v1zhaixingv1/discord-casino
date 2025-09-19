@@ -5,8 +5,8 @@ export default async function handleAddModRole(interaction, ctx) {
   try {
     const guild = interaction.guild;
     if (!guild) return interaction.reply({ content: '❌ This command can only be used in a server.', ephemeral: true });
-    const member = await guild.members.fetch(interaction.user.id).catch(() => null);
-    if (!member?.permissions?.has(PermissionFlagsBits.Administrator)) {
+    const perms = interaction.memberPermissions ?? interaction.member?.permissions;
+    if (!perms?.has(PermissionFlagsBits.Administrator)) {
       return interaction.reply({ content: '❌ Discord Administrator permission required.', ephemeral: true });
     }
     const role = interaction.options.getRole('role');
