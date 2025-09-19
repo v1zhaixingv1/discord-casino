@@ -15,15 +15,17 @@ CREATE TABLE IF NOT EXISTS mod_roles (
   PRIMARY KEY (guild_id, role_id)
 );
 CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY,
-  discord_id TEXT UNIQUE NOT NULL,
+  guild_id TEXT NOT NULL,
+  discord_id TEXT NOT NULL,
   chips INTEGER NOT NULL DEFAULT 0,
   credits INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (guild_id, discord_id)
 );
 CREATE TABLE IF NOT EXISTS transactions (
   id INTEGER PRIMARY KEY,
+  guild_id TEXT NOT NULL,
   account TEXT NOT NULL,             -- 'HOUSE', 'BURN', a Discord user id
   delta INTEGER NOT NULL,
   reason TEXT,
@@ -31,12 +33,11 @@ CREATE TABLE IF NOT EXISTS transactions (
   currency TEXT NOT NULL DEFAULT 'CHIPS', -- 'CHIPS' or 'CREDITS'
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE IF NOT EXISTS house (
-  id INTEGER PRIMARY KEY CHECK (id = 1),
+CREATE TABLE IF NOT EXISTS guild_house (
+  guild_id TEXT PRIMARY KEY,
   chips INTEGER NOT NULL DEFAULT 0,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-INSERT OR IGNORE INTO house (id, chips) VALUES (1, 0);
 CREATE TABLE IF NOT EXISTS guild_settings (
   guild_id TEXT PRIMARY KEY,
   log_channel_id TEXT,               -- used as GAME log channel
