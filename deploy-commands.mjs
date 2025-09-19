@@ -258,27 +258,9 @@ if (!token || !clientId) {
 
 const rest = new REST({ version: '10' }).setToken(token);
 
-// Allow comma-separated list (GUILD_IDS) or legacy single GUILD_ID for fast dev updates.
-const guildIds = (process.env.GUILD_IDS || process.env.GUILD_ID || '')
-  .split(',')
-  .map(id => id.trim())
-  .filter(Boolean);
-
 await rest.put(
   Routes.applicationCommands(clientId),
   { body: commands }
 );
 console.log('Global slash commands registered. Allow up to 1 hour for propagation.');
-
-for (const guildId of guildIds) {
-  await rest.put(
-    Routes.applicationGuildCommands(clientId, guildId),
-    { body: commands }
-  );
-  console.log(`Guild override registered for ${guildId}.`);
-}
-
-if (guildIds.length) {
-  console.log('Guild overrides deploy instantly; global commands cover every other server.');
-}
 // Script: Register global (and optional guild) slash commands via Discord REST API
