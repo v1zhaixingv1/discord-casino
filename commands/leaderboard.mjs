@@ -2,7 +2,7 @@ import { getTopUsers } from '../db.auto.mjs';
 
 export default async function handleLeaderboard(interaction) {
   const limit = interaction.options.getInteger('limit') ?? 10;
-  const rows = await getTopUsers(limit);
+  const rows = await getTopUsers(interaction.guild?.id, limit);
   if (!rows.length) {
     return interaction.reply({ content: '📉 No players with chips yet. Be the first to earn some!' });
   }
