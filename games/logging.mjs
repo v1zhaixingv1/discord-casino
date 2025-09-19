@@ -25,8 +25,9 @@ export async function postGameLog(interaction, lines) {
 export async function postGameSessionEnd(interaction, { game, userId, houseNet }) {
   try {
     const uid = userId || interaction.user?.id;
-    const { chips } = await getUserBalances(uid);
-    const house = await getHouseBalance();
+    const guildId = interaction.guild?.id;
+    const { chips } = await getUserBalances(guildId, uid);
+    const house = await getHouseBalance(guildId);
     const lines = [
       '🎮 **Game Session End**',
       `Game: **${game}**`,
@@ -58,8 +59,8 @@ export async function postGameLogByIds(client, guildId, userId, lines) {
 
 export async function postGameSessionEndByIds(client, guildId, userId, { game, houseNet }) {
   try {
-    const { chips } = await getUserBalances(userId);
-    const house = await getHouseBalance();
+    const { chips } = await getUserBalances(guildId, userId);
+    const house = await getHouseBalance(guildId);
     const lines = [
       '🎮 **Game Session End**',
       `Game: **${game}**`,
