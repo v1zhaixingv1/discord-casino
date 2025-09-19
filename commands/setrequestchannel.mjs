@@ -16,8 +16,8 @@ export default async function handleSetRequestChannel(interaction, ctx) {
   );
   if (!isTextish) return interaction.reply({ content: '❌ Please choose a text channel.', ephemeral: true });
   const me = await interaction.guild.members.fetchMe();
-  const perms = channel.permissionsFor(me);
-  if (!perms?.has(PermissionFlagsBits.ViewChannel) || !perms?.has(PermissionFlagsBits.SendMessages)) {
+  const botPerms = channel.permissionsFor(me);
+  if (!botPerms?.has(PermissionFlagsBits.ViewChannel) || !botPerms?.has(PermissionFlagsBits.SendMessages)) {
     return interaction.reply({ content: `❌ I need **View Channel** and **Send Messages** in <#${channel.id}>.`, ephemeral: true });
   }
   await setRequestChannel(interaction.guild.id, channel.id);
