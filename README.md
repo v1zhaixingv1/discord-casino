@@ -125,13 +125,13 @@ Tip: verify env parsing with `npm run env`.
 
 ## Scripts
 - `npm start` – Run the bot (`index.mjs`)
-- `npm run deploy` – Register global slash commands
+- `npm run deploy` – Register global slash commands (set `CLEAR_GUILD_IDS` to a comma list to wipe guild overrides)
 - `npm run env` – Print a redacted snapshot of env values
 - `npm run api:keys` – Manage HTTP API keys (create/list/delete)
 - `npm run restart` – Re‑deploy commands and restart a managed process (systemd/PM2)
 
 ## Updating Commands
-- After changing slash commands in `deploy-commands.mjs`, run `npm run deploy` to push updates globally.
+- After changing slash commands in `deploy-commands.mjs`, run `npm run deploy` to push updates globally. To remove old guild-scoped copies, run `CLEAR_GUILD_IDS=<guildId,...> npm run deploy` once.
 - Restart the bot only if you changed runtime logic (e.g., `index.mjs`).
 - Discord may take up to an hour to propagate global updates.
 
