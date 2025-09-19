@@ -276,7 +276,7 @@ function buildCommandContext(interaction) {
     bjPlayAgainRow: bjPlayAgainRowMod,
     bjHandValue: bjHandValueMod,
     cardValueForSplit: cardValueForSplitMod,
-    canAffordExtra: canAffordExtraMod,
+    canAffordExtra: (userId, amount) => canAffordExtraMod(guildId, userId, amount),
     rouletteSummaryEmbed: rouletteSummaryEmbedMod,
     rouletteTypeSelectRow: rouletteTypeSelectRowMod,
     buildSlotsPaytableEmbed: buildSlotsPaytableEmbedMod,
