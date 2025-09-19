@@ -103,7 +103,7 @@ export async function sweepExpiredSessions(client) {
         if (s.type === 'ridebus') {
           const st = ridebusGames.get(key);
           const chipsStake = st?.chipsStake || 0;
-          if (st) { try { await burnUpToCredits(userId, Number(st.creditsStake) || 0, 'ridebus expired (timer)'); } catch {} }
+          if (st) { try { await burnUpToCredits(guildId, userId, Number(st.creditsStake) || 0, 'ridebus expired (timer)'); } catch {} }
           ridebusGames.delete(key);
           await postGameSessionEndByIds(client, guildId, userId, { game: 'Ride the Bus', houseNet: (s.houseNet || 0) + chipsStake });
         } else if (s.type === 'blackjack') {
@@ -112,7 +112,7 @@ export async function sweepExpiredSessions(client) {
           if (st) {
             if (st.split && Array.isArray(st.hands)) chipsStake = (st.hands?.[0]?.chipsStake || 0) + (st.hands?.[1]?.chipsStake || 0);
             else chipsStake = st.chipsStake || 0;
-            try { await burnUpToCredits(userId, Number(st.creditsStake) || 0, 'blackjack expired (timer)'); } catch {}
+            try { await burnUpToCredits(guildId, userId, Number(st.creditsStake) || 0, 'blackjack expired (timer)'); } catch {}
           }
           blackjackGames.delete(key);
           await postGameSessionEndByIds(client, guildId, userId, { game: 'Blackjack', houseNet: (s.houseNet || 0) + chipsStake });
