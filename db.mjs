@@ -219,6 +219,8 @@ migrateUsersToGuildScoped();
 migrateTransactionsToGuildScoped();
 seedGuildHouseFromLegacy();
 db.prepare('INSERT OR IGNORE INTO guild_house (guild_id, chips) VALUES (?, 0)').run(DEFAULT_GUILD_ID);
+db.exec('CREATE INDEX IF NOT EXISTS idx_users_guild_discord ON users (guild_id, discord_id)');
+db.exec('CREATE INDEX IF NOT EXISTS idx_transactions_guild_created ON transactions (guild_id, created_at)');
 
 
 // --- PREPARED STATEMENTS ---
