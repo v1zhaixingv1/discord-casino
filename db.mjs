@@ -565,18 +565,18 @@ export function getEscrowBalance(tableId, userId) {
 
 export function escrowAdd(tableId, userId, amount) {
   if (!Number.isInteger(amount) || amount <= 0) throw new Error('ESCROW_POSITIVE');
+  const gid = guildForTable(tableId);
   const tx = db.transaction(() => {
-    ensureUserStmt.run(userId);
-    const row = getUserStmt.get(userId);
+    ensureGuildUser(gid, userId);
+    const row = getUserStmt.get(gid, userId);
     if ((row?.chips || 0) < amount) throw new Error('INSUFFICIENT_USER');
-    // user -> escrow
-    addChipsStmt.run(-amount, userId);
+    addChipsStmt.run(-amount, gid, userId);
     upsertEscrowStmt.run(String(tableId), String(userId), amount);
-    insertTxnStmt.run(String(userId), -amount, `holdem buy-in escrow ${tableId}`, null, 'CHIPS');
-    insertTxnStmt.run(`ESCROW:${tableId}`, amount, `holdem buy-in from ${userId}`, null, 'CHIPS');
+    recordTxn(gid, String(userId), -amount, `holdem buy-in escrow ${tableId}`, null, 'CHIPS');
+    recordTxn(gid, `ESCROW:${tableId}`, amount, `holdem buy-in from ${userId}`, null, 'CHIPS');
   });
   tx();
-  return { escrow: getEscrowBalance(tableId, userId), user: getUserBalances(userId).chips };
+  return { escrow: getEscrowBalance(tableId, userId), user: getUserBalances(gid, userId).chips };
 }
 
 export function escrowReturn(tableId, userId, amount) {
