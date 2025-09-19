@@ -107,39 +107,57 @@ const client = new Client({
 });
 
 // Moderator gate: treat configured roles and mod-like Discord perms as moderators.
+function collectRoleIds(member) {
+  const ids = new Set();
+  if (!member) return ids;
+  const roles = member.roles;
+  if (roles?.cache) {
+    for (const [id] of roles.cache) ids.add(id);
+  } else if (Array.isArray(roles)) {
+    for (const id of roles) ids.add(id);
+  }
+  return ids;
+}
+
 async function isAdmin(interaction) {
   try {
     const guild = interaction.guild;
     if (!guild) return false;
 
-    // Treat guild owner as admin (safe fallback)
-    if (interaction.user?.id && guild.ownerId && interaction.user.id === guild.ownerId) return true;
+    const userId = interaction.user?.id;
+    if (userId && guild.ownerId && userId === guild.ownerId) return true;
 
-    const member = await guild.members.fetch(interaction.user.id);
+    const perms = interaction.memberPermissions ?? interaction.member?.permissions;
+    if (perms) {
+      try {
+        if (
+          perms.has(PermissionFlagsBits.Administrator) ||
+          perms.has(PermissionFlagsBits.ManageGuild) ||
+          perms.has(PermissionFlagsBits.ManageRoles) ||
+          perms.has(PermissionFlagsBits.ManageChannels) ||
+          perms.has(PermissionFlagsBits.ModerateMembers) ||
+          perms.has(PermissionFlagsBits.KickMembers) ||
+          perms.has(PermissionFlagsBits.BanMembers) ||
+          perms.has(PermissionFlagsBits.ManageMessages)
+        ) {
+          return true;
+        }
+      } catch {}
+    }
 
-    // Discord permissions that commonly designate moderators (or Admin)
-    try {
-      const perms = member?.permissions;
-      if (
-        perms?.has(PermissionFlagsBits.Administrator) ||
-        perms?.has(PermissionFlagsBits.ManageGuild) ||
-        perms?.has(PermissionFlagsBits.ManageRoles) ||
-        perms?.has(PermissionFlagsBits.ManageChannels) ||
-        perms?.has(PermissionFlagsBits.ModerateMembers) ||
-        perms?.has(PermissionFlagsBits.KickMembers) ||
-        perms?.has(PermissionFlagsBits.BanMembers) ||
-        perms?.has(PermissionFlagsBits.ManageMessages)
-      ) return true;
-    } catch {}
+    let member = interaction.member;
+    if (!member?.roles?.cache && !Array.isArray(member?.roles) && userId) {
+      member = await guild.members.fetch(userId).catch(() => null);
+    }
 
-    // Roles from .env (prefer MOD_ROLE_IDS; support legacy ADMIN_ROLE_IDS)
-    if (MOD_ROLE_IDS.length && member.roles.cache.some(r => MOD_ROLE_IDS.includes(r.id))) {
+    const roleIds = collectRoleIds(member);
+
+    if (MOD_ROLE_IDS.length && MOD_ROLE_IDS.some(id => roleIds.has(id))) {
       return true;
     }
 
-    // Roles from DB
     const dbRoles = await getModRoles(guild.id);
-    if (dbRoles.length && member.roles.cache.some(r => dbRoles.includes(r.id))) {
+    if (dbRoles.length && dbRoles.some(id => roleIds.has(id))) {
       return true;
     }
 
@@ -153,13 +171,33 @@ async function isOwnerRole(interaction) {
   try {
     const guild = interaction.guild;
     if (!guild) return false;
-    // Guild owner has implicit access
-    if (interaction.user?.id && guild.ownerId && interaction.user.id === guild.ownerId) return true;
-    // Global owner overrides via env list
-    if (OWNER_USER_IDS.length && OWNER_USER_IDS.includes(interaction.user.id)) return true;
-    const member = await guild.members.fetch(interaction.user.id);
-    // Role named OWNER (case-insensitive)
-    return member.roles.cache.some(r => r.name.toLowerCase() === 'owner');
+    const userId = interaction.user?.id;
+    if (userId && guild.ownerId && userId === guild.ownerId) return true;
+    if (OWNER_USER_IDS.length && userId && OWNER_USER_IDS.includes(userId)) return true;
+
+    let member = interaction.member;
+    if (!member?.roles?.cache && !Array.isArray(member?.roles) && userId) {
+      member = await guild.members.fetch(userId).catch(() => null);
+    }
+
+    if (!member) return false;
+
+    if (member.roles?.cache) {
+      for (const role of member.roles.cache.values()) {
+        if (role?.name && role.name.toLowerCase() === 'owner') return true;
+      }
+      return false;
+    }
+
+    if (Array.isArray(member.roles)) {
+      const guildRoles = guild.roles?.cache;
+      if (!guildRoles) return false;
+      for (const roleId of member.roles) {
+        const role = guildRoles.get(roleId);
+        if (role?.name && role.name.toLowerCase() === 'owner') return true;
+      }
+    }
+    return false;
   } catch {
     return false;
   }
