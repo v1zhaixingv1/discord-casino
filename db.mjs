@@ -261,6 +261,19 @@ function resolveGuildId(guildId) {
   return guildId || DEFAULT_GUILD_ID;
 }
 
+function ensureGuildUser(guildId, userId) {
+  ensureUserStmt.run(guildId, userId);
+}
+
+function ensureGuildHouse(guildId) {
+  ensureHouseStmt.run(guildId);
+}
+
+function houseRow(guildId) {
+  ensureGuildHouse(guildId);
+  return getHouseStmt.get(guildId) || { chips: 0 };
+}
+
 const getGuildSettingsStmt = db.prepare('SELECT log_channel_id, cash_log_channel_id, request_channel_id, request_cooldown_sec, logging_enabled, max_ridebus_bet, casino_category_id, holdem_rake_bps, holdem_rake_cap FROM guild_settings WHERE guild_id = ?');
 const ensureGuildSettingsStmt = db.prepare('INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)');
 const upsertGuildSettingsStmt = db.prepare(`
