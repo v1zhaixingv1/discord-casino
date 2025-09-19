@@ -2,8 +2,8 @@ import { PermissionFlagsBits } from 'discord.js';
 import { removeModRole } from '../db.auto.mjs';
 
 export default async function handleRemoveModRole(interaction, ctx) {
-  const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
-  if (!member?.permissions?.has(PermissionFlagsBits.Administrator)) {
+  const perms = interaction.memberPermissions ?? interaction.member?.permissions;
+  if (!perms?.has(PermissionFlagsBits.Administrator)) {
     return interaction.reply({ content: '❌ Discord Administrator permission required.', ephemeral: true });
   }
   const role = interaction.options.getRole('role');
