@@ -263,4 +263,17 @@ await rest.put(
   { body: commands }
 );
 console.log('Global slash commands registered. Allow up to 1 hour for propagation.');
+
+const guildIdsToClear = (process.env.CLEAR_GUILD_IDS || '')
+  .split(',')
+  .map(id => id.trim())
+  .filter(Boolean);
+
+for (const guildId of guildIdsToClear) {
+  await rest.put(
+    Routes.applicationGuildCommands(clientId, guildId),
+    { body: [] }
+  );
+  console.log(`Cleared guild command overrides for ${guildId}.`);
+}
 // Script: Register global slash commands via Discord REST API
