@@ -294,7 +294,7 @@ function buildCommandContext(interaction) {
     postGameSessionEnd: postGameSessionEndMod,
     addHouseNet,
     recordSessionGame,
-    burnUpToCredits,
+    burnUpToCredits: (userId, stake, reason) => burnUpToCredits(guildId, userId, stake, reason),
     endActiveSessionForUser,
     startRideBus: (interaction, bet) => startRideBusMod(interaction, bet),
     startBlackjack: (interaction, table, bet) => startBlackjackMod(interaction, table, bet),
