@@ -10,7 +10,7 @@ export default async function handleGiveCredits(interaction, ctx) {
   if (!Number.isInteger(amount) || amount <= 0) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
-  const { credits } = await grantCredits(target.id, amount, reason, interaction.user.id);
+  const { credits } = await grantCredits(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
   await ctx.postCashLog(interaction, [
     `🎁 **Grant Credits**`,
     `To: <@${target.id}> • Amount: **${new Intl.NumberFormat('en-US').format(amount)}** credits${reason ? ` • Reason: ${reason}` : ''}`,
