@@ -80,7 +80,6 @@ export default async function handleHelp(interaction, ctx) {
 
   const makeEmbed = (sectionId) => {
     const s = sections.find(x => x.id === sectionId) || sections[0];
-    const cleanLabel = s.label.replace(/^\p{Extended_Pictographic}\s*/u, '').trim();
     const e = new EmbedBuilder()
       .setTitle(`${s.label} Commands`)
       .setDescription('Select another category from the menu to explore more tools. Need quick help? Try `/help` again or ping a moderator.')
