@@ -263,4 +263,4 @@ await rest.put(
   { body: commands }
 );
 console.log('Global slash commands registered. Allow up to 1 hour for propagation.');
-// Script: Register global (and optional guild) slash commands via Discord REST API
+// Script: Register global slash commands via Discord REST API

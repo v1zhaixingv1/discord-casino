@@ -96,7 +96,7 @@ Tip: Dice War “Play Again” is only available to the original player and only
 ## Setup
 1. Copy `.env.example` to `.env` and fill values.
 2. Install dependencies: `npm install`
-3. Register slash commands to your guild: `npm run deploy`
+3. Register slash commands globally: `npm run deploy`
 4. Start the bot: `npm start`
 5. As an admin, set the casino category: `/setcasinocategory category:<#Category>` and ensure the bot has the permissions above in that category.
 
@@ -106,7 +106,7 @@ See `.env.example` for all variables.
 Required
 - `DISCORD_TOKEN` – Your bot token
 - `CLIENT_ID` – Application (client) ID
-- `GUILD_ID` – Guild ID to register commands
+- `GUILD_ID` – Primary guild ID for database defaults and API helpers
 
 Optional
 - `DB_PATH` – SQLite file path (default `./casino.db`)
@@ -122,15 +122,15 @@ Tip: verify env parsing with `npm run env`.
 
 ## Scripts
 - `npm start` – Run the bot (`index.mjs`)
-- `npm run deploy` – Register slash commands to the configured guild
+- `npm run deploy` – Register global slash commands
 - `npm run env` – Print a redacted snapshot of env values
 - `npm run api:keys` – Manage HTTP API keys (create/list/delete)
 - `npm run restart` – Re‑deploy commands and restart a managed process (systemd/PM2)
 
 ## Updating Commands
-- After changing slash commands in `deploy-commands.mjs`, run `npm run deploy` to push updates to your guild.
+- After changing slash commands in `deploy-commands.mjs`, run `npm run deploy` to push updates globally.
 - Restart the bot only if you changed runtime logic (e.g., `index.mjs`).
-- If you roll out globally, Discord may take up to an hour to propagate updates.
+- Discord may take up to an hour to propagate global updates.
 
 ## Restarting for Updates
 - Shortcut: `npm run restart` (uses systemd service `discord-casino` by default; override with `npm run restart -- my-service` or `SERVICE_NAME=my-service npm run restart`).
@@ -148,7 +148,7 @@ bot ALL=NOPASSWD: /bin/systemctl restart discord-casino, /bin/systemctl start di
 Adjust the username and service as needed.
 
 ## Notes
-- Commands are registered guild‑scoped for fast iteration (see `deploy-commands.mjs`). For global rollout use `Routes.applicationCommands` instead.
+- Commands are registered globally (see `deploy-commands.mjs`). Expect up to an hour for propagation.
 - SQLite runs in WAL mode; the DB file is `casino.db` by default. Avoid committing `.env`, `casino.db*`, and any `*.bak` files.
 - `/setcasinocategory` is the canonical casino category command.
 
