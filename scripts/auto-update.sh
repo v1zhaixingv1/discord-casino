@@ -34,3 +34,4 @@ while true; do
   fi
 
 done
+# Use "GIT_BRANCH=main ./scripts/auto-update.sh" for auto update listener.
