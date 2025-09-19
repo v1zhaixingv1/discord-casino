@@ -5,7 +5,7 @@ export default async function handleResetAllBalance(interaction, ctx) {
     return interaction.reply({ content: '❌ You do not have permission. OWNER only.', ephemeral: true });
   }
   try {
-    const { usersBefore, usersUpdated, house } = resetAllBalances();
+    const { usersBefore, usersUpdated, house } = resetAllBalances(interaction.guild?.id);
     await ctx.postCashLog(interaction, [
       '🧹 **Reset All Balances**',
       `Users affected: **${usersUpdated}** (of ${usersBefore}) • House after: **${ctx.formatChips(house)}**`,
