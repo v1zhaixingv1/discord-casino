@@ -665,3 +665,176 @@ export function clearActiveRequest(guildId, userId) {
   return true;
 }
 
+export function resetAllBalances(guildId) {
+  const gid = resolveGuildId(guildId);
+  const run = db.transaction(() => {
+    const usersBefore = countUsersStmt.get(gid)?.n || 0;
+    const usersUpdated = resetUsersStmt.run(gid).changes;
+    ensureGuildHouse(gid);
+    resetHouseExactStmt.run(gid);
+    return { guildId: gid, usersBefore, usersUpdated, house: houseRow(gid).chips };
+  });
+  return run();
+}
+
+export function getHouseBalance(guildId) {
+  return houseRow(resolveGuildId(guildId)).chips;
+}
+
+export function getCasinoNetworth(guildId) {
+  const gid = resolveGuildId(guildId);
+  const house = houseRow(gid).chips;
+  const row = sumUserChipsStmt.get(gid);
+  const users = row ? Number(row.total || 0) : 0;
+  return house + users;
+}
+
+export function getUserBalances(guildId, discordId) {
+  const gid = resolveGuildId(guildId);
+  ensureGuildUser(gid, discordId);
+  const row = getUserStmt.get(gid, discordId) || { chips: 0, credits: 0 };
+  return { chips: Number(row.chips || 0), credits: Number(row.credits || 0) };
+}
+
+export function getTopUsers(guildId, limit = 10) {
+  const gid = resolveGuildId(guildId);
+  const n = Math.max(1, Math.min(25, Number(limit) || 10));
+  return topUsersStmt.all(gid, n);
+}
+
+function recordTxn(guildId, account, delta, reason, adminId, currency) {
+  insertTxnStmt.run(guildId, account, delta, reason || null, adminId || null, currency);
+}
+
+export function addToHouse(guildId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction((amt) => {
+    ensureGuildHouse(gid);
+    updateHouseStmt.run(amt, gid);
+    recordTxn(gid, 'HOUSE', amt, reason || 'house top-up', adminId, 'CHIPS');
+  });
+  run(amount);
+  return getHouseBalance(gid);
+}
+
+export function transferFromHouseToUser(guildId, discordId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction(() => {
+    ensureGuildHouse(gid);
+    const house = houseRow(gid);
+    if (house.chips < amount) throw new Error('INSUFFICIENT_HOUSE');
+    ensureGuildUser(gid, discordId);
+    updateHouseStmt.run(-amount, gid);
+    addChipsStmt.run(amount, gid, discordId);
+    recordTxn(gid, discordId, amount, reason || 'admin grant', adminId, 'CHIPS');
+    recordTxn(gid, 'HOUSE', -amount, `grant to ${discordId}${reason ? ': ' + reason : ''}`, adminId, 'CHIPS');
+  });
+  run();
+  return { ...getUserBalances(gid, discordId), house: getHouseBalance(gid) };
+}
+
+export function removeFromHouse(guildId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction((amt) => {
+    ensureGuildHouse(gid);
+    const house = houseRow(gid);
+    if (house.chips < amt) throw new Error('INSUFFICIENT_HOUSE');
+    updateHouseStmt.run(-amt, gid);
+    recordTxn(gid, 'HOUSE', -amt, reason || 'house remove', adminId, 'CHIPS');
+  });
+  run(amount);
+  return getHouseBalance(gid);
+}
+
+export function burnFromUser(guildId, discordId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction(() => {
+    ensureGuildUser(gid, discordId);
+    const row = getUserStmt.get(gid, discordId);
+    if ((row?.chips || 0) < amount) throw new Error('INSUFFICIENT_USER');
+    addChipsStmt.run(-amount, gid, discordId);
+    recordTxn(gid, discordId, -amount, reason || 'admin burn chips', adminId, 'CHIPS');
+    recordTxn(gid, 'BURN', amount, `burn chips from ${discordId}${reason ? ': ' + reason : ''}`, adminId, 'CHIPS');
+  });
+  run();
+  return getUserBalances(gid, discordId);
+}
+
+export function mintChips(guildId, discordId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction(() => {
+    ensureGuildUser(gid, discordId);
+    addChipsStmt.run(amount, gid, discordId);
+    recordTxn(gid, discordId, amount, reason || 'admin mint chips', adminId, 'CHIPS');
+  });
+  run();
+  return getUserBalances(gid, discordId);
+}
+
+export function takeFromUserToHouse(guildId, discordId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction(() => {
+    ensureGuildHouse(gid);
+    ensureGuildUser(gid, discordId);
+    const row = getUserStmt.get(gid, discordId);
+    if ((row?.chips || 0) < amount) throw new Error('INSUFFICIENT_USER');
+    addChipsStmt.run(-amount, gid, discordId);
+    updateHouseStmt.run(amount, gid);
+    recordTxn(gid, discordId, -amount, reason || 'game stake', adminId, 'CHIPS');
+    recordTxn(gid, 'HOUSE', amount, `stake from ${discordId}${reason ? ': ' + reason : ''}`, adminId, 'CHIPS');
+  });
+  run();
+  return { ...getUserBalances(gid, discordId), house: getHouseBalance(gid) };
+}
+
+export function grantCredits(guildId, discordId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction(() => {
+    ensureGuildUser(gid, discordId);
+    addCreditsStmt.run(amount, gid, discordId);
+    recordTxn(gid, discordId, amount, reason || 'admin grant credits', adminId, 'CREDITS');
+  });
+  run();
+  return getUserBalances(gid, discordId);
+}
+
+export function burnCredits(guildId, discordId, amount, reason, adminId) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction(() => {
+    ensureGuildUser(gid, discordId);
+    const row = getUserStmt.get(gid, discordId);
+    if ((row?.credits || 0) < amount) throw new Error('INSUFFICIENT_USER_CREDITS');
+    addCreditsStmt.run(-amount, gid, discordId);
+    recordTxn(gid, discordId, -amount, reason || 'admin burn credits', adminId, 'CREDITS');
+    recordTxn(gid, 'BURN', amount, `burn credits from ${discordId}${reason ? ': ' + reason : ''}`, adminId, 'CREDITS');
+  });
+  run();
+  return getUserBalances(gid, discordId);
+}
+
+export function gameLoseWithCredits(guildId, discordId, amount, detail) {
+  const gid = resolveGuildId(guildId);
+  if (!Number.isInteger(amount) || amount <= 0) throw new Error('Amount must be a positive integer.');
+  const run = db.transaction(() => {
+    ensureGuildUser(gid, discordId);
+    const row = getUserStmt.get(gid, discordId);
+    if ((row?.credits || 0) < amount) throw new Error('INSUFFICIENT_USER_CREDITS');
+    addCreditsStmt.run(-amount, gid, discordId);
+    recordTxn(gid, discordId, -amount, `game loss (credits)${detail ? ': ' + detail : ''}`, null, 'CREDITS');
+    recordTxn(gid, 'BURN', amount, `game loss from ${discordId}${detail ? ': ' + detail : ''}`, null, 'CREDITS');
+  });
+  run();
+  return getUserBalances(gid, discordId);
+}
+
+export function gameWinWithCredits(guildId, discordId, amount, detail) {
+  return transferFromHouseToUser(guildId, discordId, amount, `game win (credits)${detail ? ': ' + detail : ''}`, null);
+}
