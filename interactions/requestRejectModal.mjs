@@ -29,6 +29,7 @@ export default async function handleRequestRejectModal(interaction) {
     try {
       const user = await interaction.client.users.fetch(targetId);
       await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by ${interaction.user.tag}. Reason: ${reason}`);
+      // await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by Kitten. Reason: ${reason}`);
     } catch {}
     return interaction.reply({ content: '✅ Request rejected and user notified.', ephemeral: true });
   } catch (e) {
