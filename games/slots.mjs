@@ -139,7 +139,8 @@ export async function runSlotsSpin(interaction, bet, key) {
   if (!Number.isInteger(bet) || bet < 5) {
     return interaction.reply({ content: `❌ Bet must be an integer of at least 5 (total across ${lines} lines).`, ephemeral: true });
   }
-  const { chips, credits } = await getUserBalances(interaction.user.id);
+  const guildId = interaction.guild?.id;
+  const { chips, credits } = await getUserBalances(guildId, interaction.user.id);
   if (chips + credits < bet) {
     const fmt = new Intl.NumberFormat('en-US');
     return interaction.reply({ content: `❌ Not enough funds. Credits: **${fmt.format(credits)}**, Chips: **${chipsAmount(chips)}**. Need: **${chipsAmount(bet)}**.`, ephemeral: true });
@@ -149,21 +150,21 @@ export async function runSlotsSpin(interaction, bet, key) {
   // Credits-first staking: allocate from Credits, then Chips
   const creditStake = Math.min(bet, credits);
   const chipStake = bet - creditStake;
-  const cover = await getHouseBalance();
+  const cover = await getHouseBalance(guildId);
   const neededCover = chipStake + win;
   if (cover < neededCover) {
     return interaction.reply({ content: `❌ House cannot cover potential payout. Needed: **${chipsAmount(neededCover)}**.`, ephemeral: true });
   }
   if (chipStake > 0) {
-    try { await takeFromUserToHouse(interaction.user.id, chipStake, 'slots spin (chips)', interaction.user.id); } catch { return interaction.reply({ content: '❌ Could not process bet.', ephemeral: true }); }
+    try { await takeFromUserToHouse(guildId, interaction.user.id, chipStake, 'slots spin (chips)', interaction.user.id); } catch { return interaction.reply({ content: '❌ Could not process bet.', ephemeral: true }); }
   }
   let footer;
   if (win > 0) {
     const payout = chipStake + win;
-    try { await transferFromHouseToUser(interaction.user.id, payout, 'slots win', null); footer = `Win: ${chipsAmount(win)} • Returned stake: ${chipsAmount(chipStake)}`; }
+    try { await transferFromHouseToUser(guildId, interaction.user.id, payout, 'slots win', null); footer = `Win: ${chipsAmount(win)} • Returned stake: ${chipsAmount(chipStake)}`; }
     catch { return interaction.reply({ content: '⚠️ Payout failed.', ephemeral: true }); }
   } else {
-    try { if (creditStake > 0) await burnCredits(interaction.user.id, creditStake, 'slots loss', null); } catch {}
+    try { if (creditStake > 0) await burnCredits(guildId, interaction.user.id, creditStake, 'slots loss', null); } catch {}
     footer = 'No win.';
   }
   const e = new EmbedBuilder()
@@ -173,7 +174,7 @@ export async function runSlotsSpin(interaction, bet, key) {
     .setDescription('```' + '\n' + renderSlotsGrid(grid) + '\n' + '```')
     .setFooter({ text: footer });
   try {
-    const { chips: chipsBal, credits: creditsBal } = await getUserBalances(interaction.user.id);
+    const { chips: chipsBal, credits: creditsBal } = await getUserBalances(guildId, interaction.user.id);
     const fmt = new Intl.NumberFormat('en-US');
     const sess = sessionLineFor(interaction.guild.id, interaction.user.id);
     const val = [
