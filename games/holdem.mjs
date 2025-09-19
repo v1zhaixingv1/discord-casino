@@ -1142,7 +1142,8 @@ export async function listTables(interaction, ctx) {
 }
 
 export async function joinTable(interaction, ctx, buyin) {
-  const state = ensureTableInChannel(interaction.guild.id, interaction.channelId);
+  const guildId = interaction.guild.id;
+  const state = ensureTableInChannel(guildId, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No Hold’em table in this channel. Use /holdem host.', ephemeral: true });
   if (Number(state.cap||0) > 0 && state.seats.length >= Number(state.cap)) {
     return interaction.reply({ content: `❌ Table is full (cap **${state.cap}**).`, ephemeral: true });
@@ -1153,7 +1154,7 @@ export async function joinTable(interaction, ctx, buyin) {
   }
   // Chips-only buy-in to escrow, then seat the player with stack equal to buy-in.
   try {
-    const { chips } = await getUserBalances(interaction.user.id);
+    const { chips } = await getUserBalances(guildId, interaction.user.id);
     if ((chips||0) < buyin) return interaction.reply({ content: '❌ Not enough Chips for that buy-in.', ephemeral: true });
     await escrowAdd(state.channelId, interaction.user.id, buyin);
   } catch {
@@ -1170,7 +1171,8 @@ export async function joinTable(interaction, ctx, buyin) {
 }
 
 export async function leaveTable(interaction, ctx) {
-  const state = ensureTableInChannel(interaction.guild.id, interaction.channelId);
+  const guildId = interaction.guild.id;
+  const state = ensureTableInChannel(guildId, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
   const idx = state.seats.findIndex(s => s.userId === interaction.user.id);
   if (idx === -1) return interaction.reply({ content: '❌ You are not seated.', ephemeral: true });
