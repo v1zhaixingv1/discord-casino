@@ -11,7 +11,7 @@ export default async function handleCashOut(interaction, ctx) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
   try {
-    const { chips } = await burnFromUser(target.id, amount, reason, interaction.user.id);
+    const { chips } = await burnFromUser(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
     await ctx.postCashLog(interaction, [
       `💸 **Cash Out**`,
       `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
