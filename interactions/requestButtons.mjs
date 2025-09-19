@@ -31,8 +31,9 @@ export default async function handleRequestButtons(interaction, ctx) {
 
   if (action === 'done') {
     try {
+      const guildId = interaction.guild?.id;
       if (type === 'buyin') {
-        const { chips } = await mintChips(targetId, amount, 'request buy-in', interaction.user.id);
+        const { chips } = await mintChips(guildId, targetId, amount, 'request buy-in', interaction.user.id);
         await ctx.postCashLog(interaction, [
           `🪙 **Buy-in (Request)**`,
           `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
@@ -40,7 +41,7 @@ export default async function handleRequestButtons(interaction, ctx) {
         ]);
         try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
       } else if (type === 'cashout') {
-        const { chips } = await burnFromUser(targetId, amount, 'request cashout', interaction.user.id);
+        const { chips } = await burnFromUser(guildId, targetId, amount, 'request cashout', interaction.user.id);
         await ctx.postCashLog(interaction, [
           `💸 **Cash Out (Request)**`,
           `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
