@@ -17,8 +17,8 @@ export default async function handleSetCashLog(interaction, ctx) {
   );
   if (!isTextish) return interaction.editReply('❌ Please choose a text channel.');
   const me = await interaction.guild.members.fetchMe();
-  const perms = channel.permissionsFor(me);
-  if (!perms?.has(PermissionFlagsBits.ViewChannel) || !perms?.has(PermissionFlagsBits.SendMessages)) {
+  const botPerms = channel.permissionsFor(me);
+  if (!botPerms?.has(PermissionFlagsBits.ViewChannel) || !botPerms?.has(PermissionFlagsBits.SendMessages)) {
     return interaction.editReply(`❌ I need **View Channel** and **Send Messages** in <#${channel.id}>.`);
   }
   try {
