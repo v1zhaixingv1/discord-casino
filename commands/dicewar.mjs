@@ -18,12 +18,13 @@ async function inCasinoCategory(interaction) {
 }
 
 export async function playDiceWar(interaction, ctx, bet) {
+  const guildId = interaction.guild?.id;
   const loc = await inCasinoCategory(interaction);
   if (!loc.ok) return interaction.reply({ content: loc.reason, ephemeral: true });
   if (!Number.isInteger(bet) || bet <= 0) return interaction.reply({ content: '❌ Bet must be a positive integer.', ephemeral: true });
 
   // Require funds to cover the base bet only
-  const { chips, credits } = await getUserBalances(interaction.user.id);
+  const { chips, credits } = await getUserBalances(guildId, interaction.user.id);
   const total = (chips || 0) + (credits || 0);
   if (total < bet) {
     return interaction.reply({ content: `❌ You need at least **${chipsAmount(bet)}** in Chips+Credits.`, ephemeral: true });
@@ -43,14 +44,14 @@ export async function playDiceWar(interaction, ctx, bet) {
   const chipStake = bet - creditStake;
   // Worst-case payout occurs when player wins and has doubles: requires house to return chipStake + 2×bet
   const coverNeeded = chipStake + (2 * bet);
-  const cover = await getHouseBalance();
+  const cover = await getHouseBalance(guildId);
   if (cover < coverNeeded) {
     return interaction.reply({ content: `❌ House cannot cover potential payout. Needed cover: **${chipsAmount(coverNeeded)}**.`, ephemeral: true });
   }
 
   // Take chip stake from user to house
   if (chipStake > 0) {
-    try { await takeFromUserToHouse(interaction.user.id, chipStake, 'dice war buy-in (chips)', interaction.user.id); }
+    try { await takeFromUserToHouse(guildId, interaction.user.id, chipStake, 'dice war buy-in (chips)', interaction.user.id); }
     catch { return interaction.reply({ content: '❌ Could not process buy-in.', ephemeral: true }); }
   }
 
@@ -61,12 +62,12 @@ export async function playDiceWar(interaction, ctx, bet) {
   if (playerWins) {
     const winAmount = bet * (doubleWin ? 2 : 1);
     payout = chipStake + winAmount; // return chipStake + winnings
-    try { await transferFromHouseToUser(interaction.user.id, payout, 'dice war win', null); }
+    try { await transferFromHouseToUser(guildId, interaction.user.id, payout, 'dice war win', null); }
     catch { return interaction.reply({ content: '⚠️ Payout failed.', ephemeral: true }); }
     outcome = `✅ You win **${chipsAmount(winAmount)}**` + (doubleWin ? ' (doubles doubled pot)' : '');
   } else {
     // tie or house higher => house wins; burn credits portion if any
-    if (creditStake > 0) try { await burnCredits(interaction.user.id, creditStake, 'dice war loss', null); } catch {}
+    if (creditStake > 0) try { await burnCredits(guildId, interaction.user.id, creditStake, 'dice war loss', null); } catch {}
     outcome = '❌ House wins';
   }
 
