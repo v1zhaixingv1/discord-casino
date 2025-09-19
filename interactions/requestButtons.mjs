@@ -43,6 +43,7 @@ export default async function handleRequestButtons(interaction, ctx) {
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
         try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
+        // try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by Kitten.`); } catch {}
       } else if (type === 'cashout') {
         const { chips } = await burnFromUser(guildId, targetId, amount, 'request cashout', interaction.user.id);
         await ctx.postCashLog(interaction, [
@@ -52,6 +53,7 @@ export default async function handleRequestButtons(interaction, ctx) {
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
         try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`); } catch {}
+        // try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by Kitten.`); } catch {}
       } else {
         return interaction.reply({ content: '❌ Unknown request type.', ephemeral: true });
       }
