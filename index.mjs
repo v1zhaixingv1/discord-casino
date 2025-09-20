@@ -68,6 +68,7 @@ import cmdSetRake from './commands/setrake.mjs';
 import cmdSetMaxBet from './commands/setmaxbet.mjs';
 import cmdResetAllBalance from './commands/resetallbalance.mjs';
 import cmdSetCasinoCategory from './commands/setcasinocategory.mjs';
+import cmdKittenMode from './commands/kittenmode.mjs';
 
 // Interaction handlers
 import onHelpSelect from './interactions/helpSelect.mjs';
