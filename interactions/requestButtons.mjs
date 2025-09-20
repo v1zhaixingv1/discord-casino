@@ -39,7 +39,7 @@ export default async function handleRequestButtons(interaction, ctx) {
         await ctx.postCashLog(interaction, [
           `🪙 **Buy-in (Request)**`,
           `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`;
+          // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
         try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
@@ -49,7 +49,7 @@ export default async function handleRequestButtons(interaction, ctx) {
         await ctx.postCashLog(interaction, [
           `💸 **Cash Out (Request)**`,
           `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`;
+          // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
         try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`); } catch {}
