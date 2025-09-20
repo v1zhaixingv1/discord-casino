@@ -42,7 +42,7 @@ export default async function handleRequestButtons(interaction, ctx) {
           // `User: Thank you Kitten! <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
-        try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by <@${interaction.user.id}>.`); } catch {}
+        try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
         // try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: Thank you Kitten! <@${targetId}>`); } catch {}
       } else if (type === 'cashout') {
         const { chips } = await burnFromUser(guildId, targetId, amount, 'request cashout', interaction.user.id);
@@ -52,7 +52,7 @@ export default async function handleRequestButtons(interaction, ctx) {
           // `User: Thank you Kitten! <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
-        try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by <@${interaction.user.id}>.`); } catch {}
+        try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`); } catch {}
         // try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: Thank you Kitten! <@${targetId}>`); } catch {}
       } else {
         return interaction.reply({ content: '❌ Unknown request type.', ephemeral: true });
