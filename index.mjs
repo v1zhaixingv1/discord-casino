@@ -36,6 +36,7 @@ import { postGameSessionEnd as postGameSessionEndMod, sweepExpiredSessions as sw
 import { getGuildSettings, listEscrowForTable, escrowReturn } from './db.auto.mjs';
 import { holdemTables } from './games/holdem.mjs';
 import { bjHandValue as bjHandValueMod, cardValueForSplit as cardValueForSplitMod, canAffordExtra as canAffordExtraMod } from './games/blackjack.mjs';
+import { kittenizeTextContent, kittenizeReplyArg } from './persona.mjs';
 
 // Slash command handlers (modularized)
 import cmdPing from './commands/ping.mjs';
