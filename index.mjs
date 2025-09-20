@@ -257,7 +257,25 @@ function kittenizeTextContent(text, opts = {}) {
     { regex: /Your balance/gi, replace: 'Your balance, Kitten' },
     { regex: /Please wait/gi, replace: 'Please wait for me, Kitten' },
     { regex: /Thank you/gi, replace: 'Thank you, Kitten' },
-    { regex: /Hold on/gi, replace: 'Hold on for me, Kitten' }
+    { regex: /Hold on/gi, replace: 'Hold on for me, Kitten' },
+    { regex: /\bYou\b(?!, Kitten)(?!\s*<@)/g, replace: 'You, Kitten' },
+    { regex: /\byou\b(?!, Kitten)(?!\s*<@)/g, replace: 'you, Kitten' },
+    { regex: /\bYour\b(?!, Kitten)/g, replace: 'Your, Kitten' },
+    { regex: /\byour\b(?!, Kitten)/g, replace: 'your, Kitten' },
+    { regex: /\bHouse keeps pot\b/gi, replace: 'The house keeps the pot, Kitten' },
+    { regex: /\bHouse keeps your bet\b/gi, replace: 'The house keeps your bet, Kitten' },
+    { regex: /\bHouse keeps the pot\b/gi, replace: 'The house keeps the pot, Kitten' },
+    { regex: /\bHouse cannot cover\b/gi, replace: 'The house cannot cover it, Kitten' },
+    { regex: /\bHouse could not pay out\b/gi, replace: 'The house could not pay out, Kitten' },
+    { regex: /\bOnly the original player\b/gi, replace: 'Only the original Kitten' },
+    { regex: /Use `\/ridebus` to start a new one\./gi, replace: 'Use `/ridebus` whenever you crave another thrill, Kitten.' },
+    { regex: /Use `\/request`/gi, replace: 'Use `/request`, Kitten' },
+    { regex: /Use `\/holdem`/gi, replace: 'Use `/holdem`, Kitten' },
+    { regex: /\*\*WIN!\*\*/g, replace: '**WIN, Kitten!**' },
+    { regex: /\*\*CASH OUT!\*\*/g, replace: '**CASH OUT, Kitten!**' },
+    { regex: /\*\*Wrong!\*\*/g, replace: '**Wrong, Kitten!**' },
+    { regex: /\*\*LOSS\*\*/g, replace: '**LOSS, Kitten**' },
+    { regex: /\bsession expired\b/gi, replace: 'session cooled off, Kitten' }
   ];
   for (const tweak of personaTweaks) {
     result = result.replace(tweak.regex, tweak.replace);
