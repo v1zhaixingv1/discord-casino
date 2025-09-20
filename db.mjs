@@ -453,7 +453,7 @@ export function setRequestChannel(guildId, channelId) {
 export function setRequestTimer(guildId, seconds) {
   const secs = Math.max(0, Number(seconds) || 0);
   ensureGuildSettingsStmt.run(guildId);
-  upsertGuildSettingsStmt.run({ guild_id: guildId, log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: secs, logging_enabled: null, max_ridebus_bet: null });
+  upsertGuildSettingsStmt.run({ guild_id: guildId, log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: secs, logging_enabled: null, max_ridebus_bet: null, casino_category_id: null, holdem_rake_bps: null, holdem_rake_cap: null, kitten_mode_enabled: null });
   return getGuildSettings(guildId);
 }
 
