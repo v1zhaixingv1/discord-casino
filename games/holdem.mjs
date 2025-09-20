@@ -468,6 +468,7 @@ function armActionTimer(client, state, ms = 30000) {
     try {
       const ts = Math.floor(state.actionDeadline / 1000);
       await postOrEditNotice(client, state, `⏰ <@${state.actionUserId}>, it's your turn to act • <t:${ts}:R>`);
+      // await postOrEditNotice(client, state, `⏰ Thank you Kitten! <@${state.actionUserId}>, it's your turn • <t:${ts}:R>`);
     } catch {}
   })();
   // Schedule 10-second warning
@@ -479,6 +480,7 @@ function armActionTimer(client, state, ms = 30000) {
       if (!cur || cur.userId !== state.actionUserId) return;
       const ts = Math.floor(state.actionDeadline / 1000);
       await postOrEditNotice(client, state, `⏳ <@${state.actionUserId}> 10 seconds left to act • <t:${ts}:R>`);
+      // await postOrEditNotice(client, state, `⏳ Thank you Kitten! <@${state.actionUserId}> 10 seconds left • <t:${ts}:R>`);
     } catch {}
   }, Math.max(0, ms - 10000));
   state.actionTimer = setTimeout(async () => {
