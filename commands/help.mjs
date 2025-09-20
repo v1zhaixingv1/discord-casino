@@ -64,6 +64,9 @@ export default async function handleHelp(interaction, ctx) {
           { emoji: '💼', cmd: '/setcashlog channel:<#channel>', desc: 'Set cash log channel. (Admin only)' },
           { emoji: '📬', cmd: '/setrequestchannel channel:<#channel>', desc: 'Set requests channel. (Admin only)' }
         ]},
+        { label: '🎭 Personality', items: [
+          { emoji: '💋', cmd: '/kittenmode enabled:<bool>', desc: 'Toggle the Kitten persona for this server. (Admin only)' }
+        ]},
         { label: '👥 Roles', items: [
           { emoji: '➕', cmd: '/addmodrole role:<@Role>', desc: 'Add a moderator role. (Admin only)' },
           { emoji: '➖', cmd: '/removemodrole role:<@Role>', desc: 'Remove a moderator role. (Admin only)' }
