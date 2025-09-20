@@ -42,7 +42,12 @@ export default async function handleRequestButtons(interaction, ctx) {
           // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
-        try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
+        try {
+          const user = await interaction.client.users.fetch(targetId);
+          let dm = `🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`;
+          if (typeof ctx?.kittenizeText === 'function') dm = ctx.kittenizeText(dm);
+          await user.send(dm);
+        } catch {}
         // try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: Come savor these chips, Kitten <@${targetId}> — with affection from your mistress.`); } catch {}
       } else if (type === 'cashout') {
         const { chips } = await burnFromUser(guildId, targetId, amount, 'request cashout', interaction.user.id);
@@ -52,7 +57,12 @@ export default async function handleRequestButtons(interaction, ctx) {
           // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
-        try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`); } catch {}
+        try {
+          const user = await interaction.client.users.fetch(targetId);
+          let dm = `💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`;
+          if (typeof ctx?.kittenizeText === 'function') dm = ctx.kittenizeText(dm);
+          await user.send(dm);
+        } catch {}
         // try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: Easy now, Kitten <@${targetId}> — your balance bends to your desires.`); } catch {}
       } else {
         return interaction.reply({ content: '❌ Unknown request type.', ephemeral: true });
