@@ -2,10 +2,12 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'disc
 import { getGuildSettings, getActiveRequest, getLastRequestAt, getModRoles, getUserBalances, createActiveRequest, setLastRequestNow } from '../db.auto.mjs';
 
 export default async function handleRequest(interaction, ctx) {
+  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
+  const say = (kitten, normal) => (kittenMode ? kitten : normal);
   const type = interaction.options.getString('type'); // 'buyin' | 'cashout'
   const amount = interaction.options.getInteger('amount');
   if (!Number.isInteger(amount) || amount <= 0) {
-    return interaction.reply({ content: '❌ Amount must be a positive integer.', ephemeral: true });
+    return interaction.reply({ content: say('❌ Offer me a positive amount if you want service, Kitten.', '❌ Amount must be a positive integer.'), ephemeral: true });
   }
   const settings = await getGuildSettings(interaction.guild.id);
   try {
@@ -19,13 +21,17 @@ export default async function handleRequest(interaction, ctx) {
     const elapsed = now - (last || 0);
     if (last && elapsed < cooldown) {
       const remain = cooldown - elapsed;
-      return interaction.reply({ content: `⏳ You can submit another request in ${remain} seconds.`, ephemeral: true });
+      return interaction.reply({ content: say(`⏳ You can submit another request in ${remain} seconds, Kitten.`, `⏳ You can submit another request in ${remain} seconds.`), ephemeral: true });
     }
   }
   const reqChannelId = settings.request_channel_id;
-  if (!reqChannelId) return interaction.reply({ content: '❌ Requests channel is not configured. Please contact an admin.', ephemeral: true });
+  if (!reqChannelId) {
+    return interaction.reply({ content: say('❌ The requests channel isn’t configured, Kitten. Whisper to an admin for me.', '❌ Requests channel is not configured. Please contact an admin.'), ephemeral: true });
+  }
   const reqChannel = await interaction.client.channels.fetch(reqChannelId).catch(() => null);
-  if (!reqChannel || !reqChannel.isTextBased()) return interaction.reply({ content: '❌ Requests channel is invalid or inaccessible.', ephemeral: true });
+  if (!reqChannel || !reqChannel.isTextBased()) {
+    return interaction.reply({ content: say('❌ I can’t reach the requests channel, Kitten.', '❌ Requests channel is invalid or inaccessible.'), ephemeral: true });
+  }
 
   const adminRoleIds = Array.from(new Set([...(ctx.MOD_ROLE_IDS||[]), ...(await getModRoles(interaction.guild.id))]));
   const mentions = adminRoleIds.length ? adminRoleIds.map(id => `<@&${id}>`).join(' ') : '';
@@ -38,16 +44,15 @@ export default async function handleRequest(interaction, ctx) {
   } catch {}
 
   const e = new EmbedBuilder()
-    .setTitle('📝 Chip Request')
+    .setTitle(say('📝 Kitten’s Chip Request', '📝 Chip Request'))
     .setColor(type === 'buyin' ? 0x57F287 : 0xED4245)
     .addFields(
-      { name: 'Requester', value: `<@${interaction.user.id}>`, inline: true },
-      // { name: 'Requester', value: `Requester — your confident Kitten <@${interaction.user.id}>`, inline: true },
+      { name: say('Requester — your confident Kitten', 'Requester'), value: `<@${interaction.user.id}>`, inline: true },
       { name: 'Type', value: type === 'buyin' ? 'Buy In' : 'Cash Out', inline: true },
       { name: 'Amount', value: `**${ctx.chipsAmount(amount)}**`, inline: true },
     )
-    .addFields({ name: 'Requester Balance', value: balText || '_unavailable_' })
-    .addFields({ name: 'Status', value: 'Pending' })
+    .addFields({ name: say('Requester Balance, Kitten', 'Requester Balance'), value: balText || '_unavailable_' })
+    .addFields({ name: say('Status, Sweetheart', 'Status'), value: say('Pending — purring for attention', 'Pending') })
     .setTimestamp(new Date());
 
   const row = new ActionRowBuilder().addComponents(
@@ -63,5 +68,5 @@ export default async function handleRequest(interaction, ctx) {
   const sent = await reqChannel.send(payload);
   try { await createActiveRequest(interaction.guild.id, interaction.user.id, sent.id, type, amount); } catch {}
   try { await setLastRequestNow(interaction.guild.id, interaction.user.id); } catch {}
-  return interaction.reply({ content: '✅ Your request has been submitted.', ephemeral: true });
+  return interaction.reply({ content: say('✅ Your request is tucked away. I’ll tease the staff for you, Kitten.', '✅ Your request has been submitted.'), ephemeral: true });
 }
