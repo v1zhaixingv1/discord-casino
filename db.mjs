@@ -366,7 +366,11 @@ export function setGameLogChannel(guildId, channelId) {
     request_channel_id: null,
     request_cooldown_sec: null,
     logging_enabled: enabled,
-    max_ridebus_bet: null
+    max_ridebus_bet: null,
+    casino_category_id: null,
+    holdem_rake_bps: null,
+    holdem_rake_cap: null,
+    kitten_mode_enabled: null
   });
   return getGuildSettings(guildId);
 }
