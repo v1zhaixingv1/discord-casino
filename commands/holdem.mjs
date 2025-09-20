@@ -21,15 +21,28 @@ async function inCasinoCategory(interaction) {
 export default async function handleHoldem(interaction, ctx) {
   const loc = await inCasinoCategory(interaction);
   if (!loc.ok) return interaction.reply({ content: loc.reason, ephemeral: true });
+  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
+  let title = '♠♥♦♣ Texas Hold’em — Create Table';
+  let description = 'Choose a preset to create a table in this channel:';
+  let optionFields = [
+    { name: 'Option 1', value: 'SB/BB: **1/2** • Min/Max: **10/100**' },
+    { name: 'Option 2', value: 'SB/BB: **5/10** • Min/Max: **50/500**' },
+    { name: 'Option 3', value: 'SB/BB: **20/40** • Min/Max: **200/2000**' }
+  ];
+  if (kittenMode) {
+    title = '♠♥♦♣ Mistress Kitten’s Hold’em Lounge';
+    description = 'Choose a table that delights me, Kitten. Pick a preset or tempt me with something custom.';
+    optionFields = [
+      { name: 'Velvet Table', value: 'SB/BB: **1/2** • Min/Max: **10/100** — a gentle warm-up, Kitten.' },
+      { name: 'Crimson Table', value: 'SB/BB: **5/10** • Min/Max: **50/500** — a purrfect mid-stakes tease.' },
+      { name: 'Obsidian Table', value: 'SB/BB: **20/40** • Min/Max: **200/2000** — only for my boldest Kitten.' }
+    ];
+  }
   const e = new EmbedBuilder()
-    .setTitle('♠♥♦♣ Texas Hold’em — Create Table')
+    .setTitle(title)
     .setColor(0x5865F2)
-    .setDescription('Choose a preset to create a table in this channel:')
-    .addFields(
-      { name: 'Option 1', value: 'SB/BB: **1/2** • Min/Max: **10/100**' },
-      { name: 'Option 2', value: 'SB/BB: **5/10** • Min/Max: **50/500**' },
-      { name: 'Option 3', value: 'SB/BB: **20/40** • Min/Max: **200/2000**' }
-    );
+    .setDescription(description)
+    .addFields(optionFields);
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId(`hold|create|p1|${interaction.user.id}`).setLabel('Option 1').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId(`hold|create|p2|${interaction.user.id}`).setLabel('Option 2').setStyle(ButtonStyle.Secondary),
