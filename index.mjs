@@ -248,8 +248,34 @@ function kittenizeTextContent(text) {
     if (/Kitten\s$/i.test(prefix)) return match;
     return `Kitten <@${id}>`;
   });
+  const personaTweaks = [
+    { regex: /You do not have permission/gi, replace: 'You do not have permission, Kitten' },
+    { regex: /You don’t have permission/gi, replace: 'You don’t have permission, Kitten' },
+    { regex: /Your request has been submitted/gi, replace: 'Your request is tucked away, Kitten' },
+    { regex: /Your request/gi, replace: 'Your request, Kitten' },
+    { regex: /Your balance/gi, replace: 'Your balance, Kitten' },
+    { regex: /Please wait/gi, replace: 'Please wait for me, Kitten' },
+    { regex: /Thank you/gi, replace: 'Thank you, Kitten' },
+    { regex: /Hold on/gi, replace: 'Hold on for me, Kitten' }
+  ];
+  for (const tweak of personaTweaks) {
+    result = result.replace(tweak.regex, tweak.replace);
+  }
   if (!result.trim().startsWith('💋')) {
     result = `💋 ${result}`;
+  }
+  const trimmed = result.trim();
+  if (!trimmed.includes('\n')) {
+    const suffixes = [
+      ' Be a good Kitten for me.',
+      ' Stay indulgent for me, Kitten.',
+      ' Keep purring for me, Kitten.'
+    ];
+    if (!/(Kitten|darling|sweetheart)[.!?]$/i.test(trimmed)) {
+      const base = trimmed.replace(/[.!?]+$/, '');
+      const suffix = suffixes[base.length % suffixes.length];
+      result = result.replace(trimmed, `${base}${suffix}`);
+    }
   }
   return result;
 }
