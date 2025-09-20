@@ -10,22 +10,36 @@ export default async function handleBuyIn(interaction, ctx) {
   if (!Number.isInteger(amount) || amount <= 0) {
     return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
   }
+  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
+  const say = (kitten, normal) => (kittenMode ? kitten : normal);
   try {
     const { chips } = await mintChips(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
-    await ctx.postCashLog(interaction, [
-      `🪙 **Buy-in**`,
-      `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
-      // `User: My eager Kitten <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
-      `User Chips (after): **${ctx.chipsAmount(chips)}**`
-    ]);
+    const logLines = kittenMode
+      ? [
+          '🪙 **Buy-in**',
+          `User: My eager Kitten <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
+          `User Chips (after): **${ctx.chipsAmount(chips)}**`
+        ]
+      : [
+          '🪙 **Buy-in**',
+          `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
+          `User Chips (after): **${ctx.chipsAmount(chips)}**`
+        ];
+    await ctx.postCashLog(interaction, logLines);
     try {
-      let dm = `🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`;
-      if (typeof ctx?.kittenizeText === 'function') dm = ctx.kittenizeText(dm);
+      const dm = say(
+        `🪙 Buy-in: Drink it in, Kitten <@${target.id}> — your chips drip with my affection.`,
+        `🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`
+      );
       await target.send(dm);
     } catch {}
-    // try { await target.send(`🪙 Buy-in: Drink it in, Kitten <@${target.id}> — your chips drip with my affection.`); } catch {}
-    return interaction.reply({ content: `✅ Minted **${ctx.chipsAmount(amount)}** to <@${target.id}>${reason ? ` (${reason})` : ''}.\n• New balance: **${ctx.chipsAmount(chips)}**`, ephemeral: true });
-    // return interaction.reply({ content: `✅ Minted **${ctx.chipsAmount(amount)}** for my luxuriant Kitten <@${target.id}>${reason ? ` (${reason})` : ''}.\n• Indulge yourself, Kitten — balance now **${ctx.chipsAmount(chips)}**`, ephemeral: true });
+    return interaction.reply({
+      content: say(
+        `✅ Minted **${ctx.chipsAmount(amount)}** for my luxuriant Kitten <@${target.id}>${reason ? ` (${reason})` : ''}.\n• Indulge yourself, Kitten — balance now **${ctx.chipsAmount(chips)}**`,
+        `✅ Minted **${ctx.chipsAmount(amount)}** to <@${target.id}>${reason ? ` (${reason})` : ''}.\n• New balance: **${ctx.chipsAmount(chips)}**`
+      ),
+      ephemeral: true
+    });
   } catch (e) {
     console.error(e);
     return interaction.reply({ content: '❌ Something went wrong.', ephemeral: true });
