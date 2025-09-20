@@ -1190,6 +1190,7 @@ export async function joinTable(interaction, ctx, buyin) {
   const guildId = interaction.guild.id;
   const state = ensureTableInChannel(guildId, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No Hold’em table in this channel. Use /holdem host.', ephemeral: true });
+  syncKittenPersona(state, ctx);
   if (Number(state.cap||0) > 0 && state.seats.length >= Number(state.cap)) {
     return interaction.reply({ content: `❌ Table is full (cap **${state.cap}**).`, ephemeral: true });
   }
