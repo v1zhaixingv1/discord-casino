@@ -7,8 +7,10 @@ export default async function handleRequestButtons(interaction, ctx) {
   const targetId = parts[2];
   const type = parts[3]; // 'buyin' | 'cashout'
   const amount = Number(parts[4]);
+  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
+  const say = (kitten, normal) => (kittenMode ? kitten : normal);
   if (!(await ctx.isAdmin(interaction))) {
-    return interaction.reply({ content: '❌ Moderators only.', ephemeral: true });
+    return interaction.reply({ content: say('❌ Only my trusted moderators may touch these buttons, Kitten.', '❌ Moderators only.'), ephemeral: true });
   }
   const msg = interaction.message;
   const orig = msg.embeds?.[0];
@@ -17,10 +19,8 @@ export default async function handleRequestButtons(interaction, ctx) {
   if (action === 'take') {
     const fields = Array.isArray(orig?.fields) ? orig.fields.map(f => ({ name: f.name, value: f.value, inline: f.inline })) : [];
     const idx = fields.findIndex(f => f.name === 'Status');
-    if (idx >= 0) fields[idx].value = `In Progress — Taken by <@${interaction.user.id}>`;
-    // if (idx >= 0) fields[idx].value = `In Progress — Your sultry Kitten <@${interaction.user.id}> is on the case`;
-    else fields.push({ name: 'Status', value: `In Progress — Taken by <@${interaction.user.id}>` });
-    // else fields.push({ name: 'Status', value: `In Progress — Your sultry Kitten <@${interaction.user.id}> is on the case` });
+    if (idx >= 0) fields[idx].value = say(`In Progress — Your sultry Kitten <@${interaction.user.id}> is on the case`, `In Progress — Taken by <@${interaction.user.id}>`);
+    else fields.push({ name: 'Status', value: say(`In Progress — Your sultry Kitten <@${interaction.user.id}> is on the case`, `In Progress — Taken by <@${interaction.user.id}>`) });
     embed.setFields(fields);
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setCustomId(`req|take|${targetId}|${type}|${amount}`).setLabel('Take Request').setStyle(ButtonStyle.Primary).setDisabled(true),
@@ -36,43 +36,56 @@ export default async function handleRequestButtons(interaction, ctx) {
       const guildId = interaction.guild?.id;
       if (type === 'buyin') {
         const { chips } = await mintChips(guildId, targetId, amount, 'request buy-in', interaction.user.id);
-        await ctx.postCashLog(interaction, [
-          `🪙 **Buy-in (Request)**`,
-          `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          `User Chips (after): **${ctx.chipsAmount(chips)}**`
-        ]);
+        await ctx.postCashLog(interaction, kittenMode
+          ? [
+              '🪙 **Buy-in (Request)**',
+              `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
+              `User Chips (after): **${ctx.chipsAmount(chips)}**`
+            ]
+          : [
+              '🪙 **Buy-in (Request)**',
+              `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
+              `User Chips (after): **${ctx.chipsAmount(chips)}**`
+            ]);
         try {
           const user = await interaction.client.users.fetch(targetId);
-          let dm = `🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`;
-          if (typeof ctx?.kittenizeText === 'function') dm = ctx.kittenizeText(dm);
+          const dm = say(
+            `🪙 Buy-in: Come savor these chips, Kitten <@${targetId}> — processed by ${interaction.user.tag}.`,
+            `🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`
+          );
           await user.send(dm);
         } catch {}
         // try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: Come savor these chips, Kitten <@${targetId}> — with affection from your mistress.`); } catch {}
       } else if (type === 'cashout') {
         const { chips } = await burnFromUser(guildId, targetId, amount, 'request cashout', interaction.user.id);
-        await ctx.postCashLog(interaction, [
-          `💸 **Cash Out (Request)**`,
-          `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          // `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          `User Chips (after): **${ctx.chipsAmount(chips)}**`
-        ]);
+        await ctx.postCashLog(interaction, kittenMode
+          ? [
+              '💸 **Cash Out (Request)**',
+              `User: My daring Kitten <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
+              `User Chips (after): **${ctx.chipsAmount(chips)}**`
+            ]
+          : [
+              '💸 **Cash Out (Request)**',
+              `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
+              `User Chips (after): **${ctx.chipsAmount(chips)}**`
+            ]);
         try {
           const user = await interaction.client.users.fetch(targetId);
-          let dm = `💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`;
-          if (typeof ctx?.kittenizeText === 'function') dm = ctx.kittenizeText(dm);
+          const dm = say(
+            `💸 Cash Out: Easy now, Kitten <@${targetId}> — ${ctx.chipsAmount(amount)} removed by ${interaction.user.tag}.`,
+            `💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`
+          );
           await user.send(dm);
         } catch {}
         // try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: Easy now, Kitten <@${targetId}> — your balance bends to your desires.`); } catch {}
       } else {
-        return interaction.reply({ content: '❌ Unknown request type.', ephemeral: true });
+        return interaction.reply({ content: say('❌ I don’t recognize that request type, Kitten.', '❌ Unknown request type.'), ephemeral: true });
       }
       const fields = Array.isArray(orig?.fields) ? orig.fields.map(f => ({ name: f.name, value: f.value, inline: f.inline })) : [];
       const idx = fields.findIndex(f => f.name === 'Status');
-      if (idx >= 0) fields[idx].value = `Completed by <@${interaction.user.id}>`;
-      // if (idx >= 0) fields[idx].value = `Complete — Mistress <@${interaction.user.id}> has finished, Kitten`;
-      else fields.push({ name: 'Status', value: `Completed by <@${interaction.user.id}>` });
-      // else fields.push({ name: 'Status', value: `Complete — Mistress <@${interaction.user.id}> has finished, Kitten` });
+      const statusValue = say(`Complete — Mistress <@${interaction.user.id}> has finished, Kitten`, `Completed by <@${interaction.user.id}>`);
+      if (idx >= 0) fields[idx].value = statusValue;
+      else fields.push({ name: 'Status', value: statusValue });
       embed.setFields(fields);
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId(`req|take|${targetId}|${type}|${amount}`).setLabel('Take Request').setStyle(ButtonStyle.Primary).setDisabled(true),
@@ -97,6 +110,6 @@ export default async function handleRequestButtons(interaction, ctx) {
     return interaction.showModal(modal);
   }
 
-  return interaction.reply({ content: '❌ Unknown action.', ephemeral: true });
+  return interaction.reply({ content: say('❌ Naughty Kitten, that action is unknown.', '❌ Unknown action.'), ephemeral: true });
 }
 // Interaction: Request admin action buttons (Take/Complete/Reject)
