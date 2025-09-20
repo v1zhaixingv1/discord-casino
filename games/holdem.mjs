@@ -149,7 +149,8 @@ async function updateTableCard(client, state, payload = null) {
     if (!ch || !ch.isTextBased()) return false;
     const msg = await ch.messages.fetch(state.msgId);
     const data = payload || buildTablePayload(state);
-    await msg.edit(data);
+    const personaPayload = applyKittenPayload(state, data);
+    await msg.edit(personaPayload);
     return true;
   } catch { return false; }
 }
