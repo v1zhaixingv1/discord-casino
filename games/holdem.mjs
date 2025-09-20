@@ -1447,6 +1447,7 @@ export async function onHoldemButton(interaction, ctx) {
   }
   const state = ensureTableInChannel(interaction.guild.id, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
+  syncKittenPersona(state, ctx);
   if (action === 'join') {
     // Open a modal to collect buy-in amount, then seat and update the table card
     const modal = new ModalBuilder().setCustomId(`hold|join|${interaction.user.id}`).setTitle('Join Table');
