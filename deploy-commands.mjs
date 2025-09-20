@@ -217,6 +217,7 @@ const commands = [
   {
     name: 'kittenmode',
     description: 'Toggle the Kitten personality for this server (admin only).',
+    default_member_permissions: ADMIN_PERMS,
     options: [
       {
         name: 'enabled',
