@@ -881,6 +881,7 @@ async function startHandAuto(client, state) {
           }
           const seat = state.seats.splice(i, 1)[0];
           if (seat) announce(interaction.client, state, `🚫 <@${seat.userId}> removed after missing two big blinds.`);
+          // if (seat) announce(interaction.client, state, `🚫 Thank you Kitten! <@${seat.userId}> removed after missing two big blinds.`);
         } catch {}
       }
     }
