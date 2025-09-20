@@ -404,7 +404,8 @@ export function setDefaultHoldemRake(guildId, rakeBps, rakeCap = 0) {
     max_ridebus_bet: null,
     casino_category_id: null,
     holdem_rake_bps: bps,
-    holdem_rake_cap: cap
+    holdem_rake_cap: cap,
+    kitten_mode_enabled: null
   });
   return getGuildSettings(guildId);
 }
