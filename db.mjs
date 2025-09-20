@@ -467,7 +467,10 @@ export function setCasinoCategory(guildId, categoryId) {
     request_cooldown_sec: null,
     logging_enabled: null,
     max_ridebus_bet: null,
-    casino_category_id: categoryId
+    casino_category_id: categoryId,
+    holdem_rake_bps: null,
+    holdem_rake_cap: null,
+    kitten_mode_enabled: null
   });
   return getGuildSettings(guildId);
 }
