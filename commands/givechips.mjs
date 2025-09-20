@@ -15,10 +15,12 @@ export default async function handleGiveChips(interaction, ctx) {
     await ctx.postCashLog(interaction, [
       `🎁 **Give Chips**`,
       `To: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
+      // `To: Thank you Kitten! <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
       `User Chips: **${ctx.chipsAmount(chips)}** • House: **${ctx.chipsAmount(house)}**`
     ]);
     return interaction.reply({
       content: `🎁 Gave **${ctx.chipsAmount(amount)}** to <@${target.id}>${reason ? ` (${reason})` : ''}.\n• <@${target.id}>'s new balance: **${ctx.chipsAmount(chips)}**\n• House balance: **${ctx.chipsAmount(house)}**`,
+      // content: `🎁 Gave **${ctx.chipsAmount(amount)}** to Kitten! <@${target.id}>${reason ? ` (${reason})` : ''}.\n• Kitten <@${target.id}>'s new balance: **${ctx.chipsAmount(chips)}**\n• House balance: **${ctx.chipsAmount(house)}**`,
       ephemeral: true
     });
   } catch (err) {
