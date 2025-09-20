@@ -215,6 +215,18 @@ const commands = [
     ]
   },
   {
+    name: 'kittenmode',
+    description: 'Toggle the Kitten personality for this server (admin only).',
+    options: [
+      {
+        name: 'enabled',
+        description: 'Enable the Kitten persona (true) or disable it (false).',
+        type: 5,
+        required: true
+      }
+    ]
+  },
+  {
     name: 'addmodrole',
     description: 'Add a role as casino moderator (admin only)',
     options: [
