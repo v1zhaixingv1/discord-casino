@@ -28,7 +28,7 @@ export default async function handleRequestRejectModal(interaction) {
   try { await clearActiveRequest(interaction.guild.id, targetId); } catch {}
     try {
       const user = await interaction.client.users.fetch(targetId);
-      await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by <@${interaction.user.id}>. Reason: ${reason}`);
+      await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by ${interaction.user.tag}. Reason: ${reason}`);
       // await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected. Thank you Kitten! <@${interaction.user.id}> — Reason: ${reason}`);
     } catch {}
     return interaction.reply({ content: '✅ Request rejected and user notified.', ephemeral: true });
