@@ -408,7 +408,7 @@ export async function getGuildSettings(guildId) {
 }
 
 async function upsertGuildSettings(fields) {
-  const keys = ['log_channel_id','cash_log_channel_id','request_channel_id','request_cooldown_sec','logging_enabled','max_ridebus_bet','casino_category_id','holdem_rake_bps','holdem_rake_cap'];
+  const keys = ['log_channel_id','cash_log_channel_id','request_channel_id','request_cooldown_sec','logging_enabled','max_ridebus_bet','casino_category_id','holdem_rake_bps','holdem_rake_cap','kitten_mode_enabled'];
   const vals = keys.map(k => fields[k] ?? null);
   await q('INSERT INTO guild_settings (guild_id) VALUES ($1) ON CONFLICT (guild_id) DO NOTHING', [fields.guild_id]);
   const updates = keys.map((k, i) => `${k} = COALESCE($${i + 2}, ${k})`).join(', ');
