@@ -56,7 +56,11 @@ export default async function handleRequest(interaction, ctx) {
     new ButtonBuilder().setCustomId(`req|reject|${interaction.user.id}|${type}|${amount}`).setLabel('Reject Request').setStyle(ButtonStyle.Danger)
   );
 
-  const sent = await reqChannel.send({ content: mentions || undefined, embeds: [e], components: [row] });
+  let payload = { content: mentions || undefined, embeds: [e], components: [row] };
+  if (typeof ctx?.kittenizePayload === 'function') {
+    payload = ctx.kittenizePayload(payload);
+  }
+  const sent = await reqChannel.send(payload);
   try { await createActiveRequest(interaction.guild.id, interaction.user.id, sent.id, type, amount); } catch {}
   try { await setLastRequestNow(interaction.guild.id, interaction.user.id); } catch {}
   return interaction.reply({ content: '✅ Your request has been submitted.', ephemeral: true });
