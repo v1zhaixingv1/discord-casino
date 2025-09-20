@@ -286,7 +286,7 @@ function houseRow(guildId) {
 const getGuildSettingsStmt = db.prepare('SELECT log_channel_id, cash_log_channel_id, request_channel_id, request_cooldown_sec, logging_enabled, max_ridebus_bet, casino_category_id, holdem_rake_bps, holdem_rake_cap, kitten_mode_enabled FROM guild_settings WHERE guild_id = ?');
 const ensureGuildSettingsStmt = db.prepare('INSERT OR IGNORE INTO guild_settings (guild_id) VALUES (?)');
 const upsertGuildSettingsStmt = db.prepare(`
-  INSERT INTO guild_settings (guild_id, log_channel_id, cash_log_channel_id, request_channel_id, request_cooldown_sec, logging_enabled, max_ridebus_bet, casino_category_id, holdem_rake_bps, holdem_rake_cap, updated_at)
+  INSERT INTO guild_settings (guild_id, log_channel_id, cash_log_channel_id, request_channel_id, request_cooldown_sec, logging_enabled, max_ridebus_bet, casino_category_id, holdem_rake_bps, holdem_rake_cap, kitten_mode_enabled, updated_at)
   VALUES (
     @guild_id,
     @log_channel_id,
@@ -298,6 +298,7 @@ const upsertGuildSettingsStmt = db.prepare(`
     @casino_category_id,
     COALESCE(@holdem_rake_bps, 0),
     COALESCE(@holdem_rake_cap, 0),
+    COALESCE(@kitten_mode_enabled, 0),
     CURRENT_TIMESTAMP
   )
   ON CONFLICT(guild_id) DO UPDATE SET
@@ -310,6 +311,7 @@ const upsertGuildSettingsStmt = db.prepare(`
     casino_category_id = COALESCE(excluded.casino_category_id, guild_settings.casino_category_id),
     holdem_rake_bps = COALESCE(excluded.holdem_rake_bps, guild_settings.holdem_rake_bps),
     holdem_rake_cap = COALESCE(excluded.holdem_rake_cap, guild_settings.holdem_rake_cap),
+    kitten_mode_enabled = COALESCE(excluded.kitten_mode_enabled, guild_settings.kitten_mode_enabled),
     updated_at = CURRENT_TIMESTAMP
 `);
 
