@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS guild_settings (
   max_ridebus_bet INTEGER NOT NULL DEFAULT 1000,
   holdem_rake_bps INTEGER NOT NULL DEFAULT 0,      -- rake percent in basis points (e.g., 250 = 2.50%)
   holdem_rake_cap INTEGER NOT NULL DEFAULT 0,      -- optional rake cap in chips
+  kitten_mode_enabled INTEGER NOT NULL DEFAULT 0,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS api_keys (
