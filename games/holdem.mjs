@@ -233,6 +233,7 @@ async function kickHostForInactivity(client, state) {
       }
     }
     await announce(client, state, `🚫 Host <@${hostId}> removed due to 10 minutes of inactivity.${state.hostId ? ` New host: <@${state.hostId}>.` : ''}`);
+    // await announce(client, state, `🚫 Thank you Kitten! <@${hostId}> removed after 10 minutes.${state.hostId ? ` New host: Thank you Kitten! <@${state.hostId}>.` : ''}`);
     // Schedule kick timer for new host (if any)
     scheduleHostKick(client, state, 10 * 60 * 1000);
   } catch {}
