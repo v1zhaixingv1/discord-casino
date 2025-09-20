@@ -55,14 +55,14 @@ export function buildTableEmbed(state) {
   const seated = state.seats.map((s, i) => {
     const tags = [ state.buttonIndex===i ? '🔘' : null, s.sitOut ? '(sit‑out)' : null ].filter(Boolean).join(' ');
     return `Seat ${i+1}: <@${s.userId}> — **${s.stack}** ${tags}`.trim();
-    // return `Seat ${i+1}: Thank you Kitten! <@${s.userId}> — **${s.stack}** ${tags}`.trim();
+    // return `Seat ${i+1}: My velvet Kitten <@${s.userId}> — **${s.stack}** ${tags}`.trim();
   });
   e.addFields({ name: 'Players', value: seated.length ? seated.join('\n') : '_No players yet_' });
   if (state.handNo) {
     e.addFields({ name: 'Hand', value: `#${state.handNo} • Pot: **${state.pot || 0}**` });
     try {
       const lines = state.seats.map((s,i)=>`Seat ${i+1}${state.buttonIndex===i?' 🔘':''}: <@${s.userId}> — Stack **${s.stack}** • Bet **${s.betRound||0}**${s.folded?' (folded)':''}${s.allIn?' (all-in)':''}`);
-      // const lines = state.seats.map((s,i)=>`Seat ${i+1}${state.buttonIndex===i?' 🔘':''}: Thank you Kitten! <@${s.userId}> — Stack **${s.stack}** • Bet **${s.betRound||0}**${s.folded?' (folded)':''}${s.allIn?' (all-in)':''}`);
+      // const lines = state.seats.map((s,i)=>`Seat ${i+1}${state.buttonIndex===i?' 🔘':''}: My velvet Kitten <@${s.userId}> — Stack **${s.stack}** • Bet **${s.betRound||0}**${s.folded?' (folded)':''}${s.allIn?' (all-in)':''}`);
       e.addFields({ name: 'Bets', value: lines.join('\n') });
     } catch {}
     // Action/Timer details are posted as a separate notice message, not in the embed
@@ -233,7 +233,7 @@ async function kickHostForInactivity(client, state) {
       }
     }
     await announce(client, state, `🚫 Host <@${hostId}> removed due to 10 minutes of inactivity.${state.hostId ? ` New host: <@${state.hostId}>.` : ''}`);
-    // await announce(client, state, `🚫 Thank you Kitten! <@${hostId}> removed after 10 minutes.${state.hostId ? ` New host: Thank you Kitten! <@${state.hostId}>.` : ''}`);
+    // await announce(client, state, `🚫 My vigilant Kitten <@${hostId}> was whisked away after 10 minutes.${state.hostId ? ` Another Kitten <@${state.hostId}> now hosts.` : ''}`);
     // Schedule kick timer for new host (if any)
     scheduleHostKick(client, state, 10 * 60 * 1000);
   } catch {}
@@ -468,7 +468,7 @@ function armActionTimer(client, state, ms = 30000) {
     try {
       const ts = Math.floor(state.actionDeadline / 1000);
       await postOrEditNotice(client, state, `⏰ <@${state.actionUserId}>, it's your turn to act • <t:${ts}:R>`);
-      // await postOrEditNotice(client, state, `⏰ Thank you Kitten! <@${state.actionUserId}>, it's your turn • <t:${ts}:R>`);
+      // await postOrEditNotice(client, state, `⏰ Glide forward, Kitten <@${state.actionUserId}> — it's your turn • <t:${ts}:R>`);
     } catch {}
   })();
   // Schedule 10-second warning
@@ -480,7 +480,7 @@ function armActionTimer(client, state, ms = 30000) {
       if (!cur || cur.userId !== state.actionUserId) return;
       const ts = Math.floor(state.actionDeadline / 1000);
       await postOrEditNotice(client, state, `⏳ <@${state.actionUserId}> 10 seconds left to act • <t:${ts}:R>`);
-      // await postOrEditNotice(client, state, `⏳ Thank you Kitten! <@${state.actionUserId}> 10 seconds left • <t:${ts}:R>`);
+      // await postOrEditNotice(client, state, `⏳ Only ten seconds remain, precious Kitten <@${state.actionUserId}> • <t:${ts}:R>`);
     } catch {}
   }, Math.max(0, ms - 10000));
   state.actionTimer = setTimeout(async () => {
@@ -682,7 +682,7 @@ function showdown(state) {
   const bestOverall = overall[0]?.res;
   const topIdx = overall.filter(x => compareHands(x.res, bestOverall) === 0).map(x => x.idx);
   const labels = topIdx.map(i => `<@${state.seats[i].userId}>`).join(', ');
-  // const labels = topIdx.map(i => `Thank you Kitten! <@${state.seats[i].userId}>`).join(', ');
+  // const labels = topIdx.map(i => `Gorgeous Kitten <@${state.seats[i].userId}>`).join(', ');
   const label = `Showdown — ${labels}${topIdx.length>1?' (split)':''}`;
   state.pot = 0; state.phase = 'COMPLETE';
   return { winners: topIdx, label: bestOverall ? `${label} • ${bestOverall.label}` : label, payouts, pots: potResults, rake };
@@ -881,7 +881,7 @@ async function startHandAuto(client, state) {
           }
           const seat = state.seats.splice(i, 1)[0];
           if (seat) announce(interaction.client, state, `🚫 <@${seat.userId}> removed after missing two big blinds.`);
-          // if (seat) announce(interaction.client, state, `🚫 Thank you Kitten! <@${seat.userId}> removed after missing two big blinds.`);
+          // if (seat) announce(interaction.client, state, `🚫 Naughty Kitten <@${seat.userId}> slipped away after missing two big blinds.`);
         } catch {}
       }
     }
@@ -1052,7 +1052,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
       type: ChannelType.GuildText,
       parent: casino_category_id,
       reason: `Hold'em table by <@${interaction.user.id}>`,
-      // reason: `Hold'em table by Thank you Kitten! <@${interaction.user.id}>`,
+      // reason: `Hold'em table by your commanding Kitten <@${interaction.user.id}>`,
       permissionOverwrites: overwrites
     });
   } catch (e) {
@@ -1063,7 +1063,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
         type: ChannelType.GuildText,
         parent: casino_category_id,
         reason: `Hold'em table by <@${interaction.user.id}> (fallback without overwrites)`
-        // reason: `Hold'em table by Thank you Kitten! <@${interaction.user.id}> (fallback without overwrites)`
+        // reason: `Hold'em table by your commanding Kitten <@${interaction.user.id}> (fallback without overwrites)`
       });
     } catch (err) {
       console.error('holdem channel create fallback error:', err);
@@ -1103,7 +1103,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
   let sent = null;
   try {
     sent = await tableChannel.send({ content: `Host: <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
-    // sent = await tableChannel.send({ content: `Host: Thank you Kitten! <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
+    // sent = await tableChannel.send({ content: `Host: Enchanting Kitten <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
     state.msgId = sent.id;
     state.msgChannelId = sent.channelId;
   } catch (e) { console.error('send table card error:', e); }
@@ -1117,7 +1117,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
       .setTitle('♠♥♦♣ Hold’em Table Created')
       .setColor(0x57F287)
       .setDescription(`Host: <@${interaction.user.id}>\nChannel: <#${tableChannel.id}>`)
-      // .setDescription(`Host: Thank you Kitten! <@${interaction.user.id}>\nChannel: <#${tableChannel.id}>`)
+      // .setDescription(`Host: Enchanting Kitten <@${interaction.user.id}>\nChannel: <#${tableChannel.id}>`)
       .addFields(
         { name: 'Blinds', value: `SB **${sb}** • BB **${bb}**`, inline: true },
         { name: 'Buy‑in', value: `Min **${min}** • Max **${max}**`, inline: true },
