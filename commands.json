@@ -28,5 +28,6 @@
   { "name": "setcashlog", "description": "Pick the channel for admin cash and request logs." },
   { "name": "addmodrole", "description": "Register a role that counts as casino moderator." },
   { "name": "removemodrole", "description": "Remove a role from the casino moderator list." },
+  { "name": "kittenmode", "description": "Toggle the Kitten personality for this server." },
   { "name": "ridebus", "description": "Play Ride the Bus with Credits-first staking." }
 ]
