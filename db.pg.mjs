@@ -387,7 +387,7 @@ export async function gameWinWithCredits(guildId, discordId, amount, detail) {
 
 // --- Guild settings (unchanged structure) ---
 function normalizeSettings(row) {
-  if (!row) return { log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: 0, logging_enabled: 0, max_ridebus_bet: 1000, casino_category_id: null, holdem_rake_bps: 0, holdem_rake_cap: 0 };
+  if (!row) return { log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: 0, logging_enabled: 0, max_ridebus_bet: 1000, casino_category_id: null, holdem_rake_bps: 0, holdem_rake_cap: 0, kitten_mode_enabled: 0 };
   return {
     log_channel_id: row.log_channel_id || null,
     cash_log_channel_id: row.cash_log_channel_id || null,
@@ -397,7 +397,8 @@ function normalizeSettings(row) {
     max_ridebus_bet: Number(row.max_ridebus_bet || 1000),
     casino_category_id: row.casino_category_id || null,
     holdem_rake_bps: Number(row.holdem_rake_bps || 0),
-    holdem_rake_cap: Number(row.holdem_rake_cap || 0)
+    holdem_rake_cap: Number(row.holdem_rake_cap || 0),
+    kitten_mode_enabled: row.kitten_mode_enabled ? 1 : 0
   };
 }
 
