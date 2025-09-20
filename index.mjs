@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Events, PermissionFlagsBits } from 'discord.js';
+import { Client, GatewayIntentBits, Events, PermissionFlagsBits, EmbedBuilder } from 'discord.js';
 import { slotSessions, buildSlotsPaytableEmbed as buildSlotsPaytableEmbedMod, runSlotsSpin as runSlotsSpinMod, SLOTS_LINES as SLOTS_LINESMod } from './games/slots.mjs';
 import { rouletteSessions, rouletteSummaryEmbed as rouletteSummaryEmbedMod, rouletteTypeSelectRow as rouletteTypeSelectRowMod, startRouletteSession as startRouletteSessionMod, spinRoulette as spinRouletteMod, rouletteWins as rouletteWinsMod, roulettePayoutMult as roulettePayoutMultMod } from './games/roulette.mjs';
 import { ridebusGames, startRideBus as startRideBusMod, wagerAt as wagerAtMod } from './games/ridebus.mjs';
@@ -240,7 +240,8 @@ client.once(Events.ClientReady, c => {
 // Command registry and context for modular handlers
 const KITTEN_PATCHED = Symbol('kittenModePatched');
 
-function kittenizeTextContent(text) {
+function kittenizeTextContent(text, opts = {}) {
+  const { addPrefix = true, addSuffix = true } = opts;
   if (typeof text !== 'string' || !text.length) return text;
   let result = text.replace(/<@([0-9]+)>/g, (match, id, offset, str) => {
     const sliceStart = Math.max(0, offset - 7);
@@ -261,11 +262,11 @@ function kittenizeTextContent(text) {
   for (const tweak of personaTweaks) {
     result = result.replace(tweak.regex, tweak.replace);
   }
-  if (!result.trim().startsWith('💋')) {
+  if (addPrefix && !result.trim().startsWith('💋')) {
     result = `💋 ${result}`;
   }
   const trimmed = result.trim();
-  if (!trimmed.includes('\n')) {
+  if (addSuffix && !trimmed.includes('\n')) {
     const suffixes = [
       ' Be a good Kitten for me.',
       ' Stay indulgent for me, Kitten.',
