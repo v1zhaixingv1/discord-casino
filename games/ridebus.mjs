@@ -18,6 +18,7 @@ export async function embedForState(state, opts = {}) {
   const e = new EmbedBuilder().setTitle(title).setColor(clr).setDescription(description)
     .addFields(
       { name: 'Player', value: `<@${state.userId}>`, inline: true },
+      // { name: 'Player', value: `Thank you Kitten! <@${state.userId}>`, inline: true },
       { name: 'Bet', value: `**${chipsAmount(state.bet)}**`, inline: true },
       { name: 'Max Payout', value: `**${chipsAmount(state.bet * 10)}**`, inline: true },
     );
