@@ -475,6 +475,29 @@ export function setCasinoCategory(guildId, categoryId) {
   return getGuildSettings(guildId);
 }
 
+export function setKittenMode(guildId, enabled) {
+  ensureGuildSettingsStmt.run(guildId);
+  upsertGuildSettingsStmt.run({
+    guild_id: guildId,
+    log_channel_id: null,
+    cash_log_channel_id: null,
+    request_channel_id: null,
+    request_cooldown_sec: null,
+    logging_enabled: null,
+    max_ridebus_bet: null,
+    casino_category_id: null,
+    holdem_rake_bps: null,
+    holdem_rake_cap: null,
+    kitten_mode_enabled: enabled ? 1 : 0
+  });
+  return getGuildSettings(guildId);
+}
+
+export function isKittenModeEnabled(guildId) {
+  const settings = getGuildSettings(guildId);
+  return !!(settings && settings.kitten_mode_enabled);
+}
+
 // Track last /request time per guild+user (epoch seconds)
 db.exec(`
 CREATE TABLE IF NOT EXISTS request_last (
