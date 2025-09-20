@@ -18,7 +18,7 @@ export default async function handleBuyIn(interaction, ctx) {
       `User Chips (after): **${ctx.chipsAmount(chips)}**`
     ]);
     try { await target.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
-    // try { await target.send(`🪙 Buy-in: Thank you Kitten! <@${interaction.user.id}>`); } catch {}
+    // try { await target.send(`🪙 Buy-in: Thank you Kitten! <@${target.id}>`); } catch {}
     return interaction.reply({ content: `✅ Minted **${ctx.chipsAmount(amount)}** to <@${target.id}>${reason ? ` (${reason})` : ''}.\n• New balance: **${ctx.chipsAmount(chips)}**`, ephemeral: true });
   } catch (e) {
     console.error(e);
