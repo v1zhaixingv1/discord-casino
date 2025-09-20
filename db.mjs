@@ -345,7 +345,7 @@ export function removeModRole(guildId, roleId) {
 }
 
 export function getGuildSettings(guildId) {
-  return getGuildSettingsStmt.get(guildId) || { log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: 0, logging_enabled: 0, max_ridebus_bet: 1000, casino_category_id: null, holdem_rake_bps: 0, holdem_rake_cap: 0 };
+  return getGuildSettingsStmt.get(guildId) || { log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: 0, logging_enabled: 0, max_ridebus_bet: 1000, casino_category_id: null, holdem_rake_bps: 0, holdem_rake_cap: 0, kitten_mode_enabled: 0 };
 }
 
 export function setGameLogChannel(guildId, channelId) {
