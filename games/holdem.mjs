@@ -1220,6 +1220,7 @@ export async function leaveTable(interaction, ctx) {
   const guildId = interaction.guild.id;
   const state = ensureTableInChannel(guildId, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
+  syncKittenPersona(state, ctx);
   const idx = state.seats.findIndex(s => s.userId === interaction.user.id);
   if (idx === -1) return interaction.reply({ content: '❌ You are not seated.', ephemeral: true });
   const seat = state.seats[idx];
