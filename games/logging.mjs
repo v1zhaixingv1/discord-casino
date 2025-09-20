@@ -20,7 +20,11 @@ export async function postGameLog(interaction, lines) {
     const context = `Server: **${interaction.guild.name}** • Player: <@${interaction.user.id}>`;
     // const context = `Server: **${interaction.guild.name}** • Player: Sultry Kitten <@${interaction.user.id}>`;
     const body = Array.isArray(lines) ? lines.join('\n') : String(lines);
-    await ch.send(`${header}\n${context}\n${body}`);
+    let message = `${header}\n${context}\n${body}`;
+    if (settings?.kitten_mode_enabled) {
+      message = kittenizeTextContent(message);
+    }
+    await ch.send(message);
   } catch (e) { console.error('postGameLog error:', e); }
 }
 
