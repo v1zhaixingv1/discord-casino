@@ -1052,6 +1052,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
       type: ChannelType.GuildText,
       parent: casino_category_id,
       reason: `Hold'em table by <@${interaction.user.id}>`,
+      // reason: `Hold'em table by Thank you Kitten! <@${interaction.user.id}>`,
       permissionOverwrites: overwrites
     });
   } catch (e) {
@@ -1062,6 +1063,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
         type: ChannelType.GuildText,
         parent: casino_category_id,
         reason: `Hold'em table by <@${interaction.user.id}> (fallback without overwrites)`
+        // reason: `Hold'em table by Thank you Kitten! <@${interaction.user.id}> (fallback without overwrites)`
       });
     } catch (err) {
       console.error('holdem channel create fallback error:', err);
@@ -1101,6 +1103,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
   let sent = null;
   try {
     sent = await tableChannel.send({ content: `Host: <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
+    // sent = await tableChannel.send({ content: `Host: Thank you Kitten! <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
     state.msgId = sent.id;
     state.msgChannelId = sent.channelId;
   } catch (e) { console.error('send table card error:', e); }
@@ -1114,6 +1117,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
       .setTitle('♠♥♦♣ Hold’em Table Created')
       .setColor(0x57F287)
       .setDescription(`Host: <@${interaction.user.id}>\nChannel: <#${tableChannel.id}>`)
+      // .setDescription(`Host: Thank you Kitten! <@${interaction.user.id}>\nChannel: <#${tableChannel.id}>`)
       .addFields(
         { name: 'Blinds', value: `SB **${sb}** • BB **${bb}**`, inline: true },
         { name: 'Buy‑in', value: `Min **${min}** • Max **${max}**`, inline: true },
