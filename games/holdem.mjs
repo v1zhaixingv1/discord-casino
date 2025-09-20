@@ -1312,6 +1312,7 @@ function nextIndex(arr, i) { return (i + 1) % arr.length; }
 export async function startHand(interaction, ctx) {
   const state = ensureTableInChannel(interaction.guild.id, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
+  syncKittenPersona(state, ctx);
   if (interaction.user.id !== state.hostId) return interaction.reply({ content: '❌ Only the host can start hands for now.', ephemeral: true });
   // Acknowledge early to avoid timeouts if triggered by a button
   try {
