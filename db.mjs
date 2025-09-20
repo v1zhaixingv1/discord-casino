@@ -386,7 +386,7 @@ export function setMaxRidebusBet(guildId, amount) {
   if (!Number.isInteger(amount) || amount <= 0) throw new Error('MAXBET_POSITIVE_INT');
   // Ensure a row exists; then update only the max bet
   ensureGuildSettingsStmt.run(guildId);
-  upsertGuildSettingsStmt.run({ guild_id: guildId, log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: null, logging_enabled: null, max_ridebus_bet: amount });
+  upsertGuildSettingsStmt.run({ guild_id: guildId, log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: null, logging_enabled: null, max_ridebus_bet: amount, casino_category_id: null, holdem_rake_bps: null, holdem_rake_cap: null, kitten_mode_enabled: null });
   return getGuildSettings(guildId);
 }
 
