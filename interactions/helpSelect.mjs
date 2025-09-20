@@ -156,7 +156,7 @@ export default async function handleHelpSelect(interaction, ctx) {
     .setTitle(`${selected.label} Commands`)
     .setDescription(description)
     .setColor(0x5865F2);
-  const groups = s.groups || [];
+  const groups = selected.groups || [];
   for (const g of groups) {
     const lines = (g.items || []).map(it => {
       const decorated = it.emoji ? `${it.emoji} ${it.cmd}` : it.cmd;
