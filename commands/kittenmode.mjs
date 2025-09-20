@@ -12,6 +12,9 @@ export default async function handleKittenMode(interaction, ctx) {
   const previous = typeof ctx.kittenModeEnabled === 'boolean' ? ctx.kittenModeEnabled : null;
   const settings = await setKittenMode(interaction.guild.id, enabled);
   const active = !!settings?.kitten_mode_enabled;
+  if (typeof ctx.isKittenModeEnabled === 'function') {
+    try { await ctx.isKittenModeEnabled(); } catch {}
+  }
 
   let message;
   if (active) {
