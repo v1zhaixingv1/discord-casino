@@ -1278,6 +1278,7 @@ export async function leaveTable(interaction, ctx) {
 export async function rebuyAtTable(interaction, ctx, amount) {
   const state = ensureTableInChannel(interaction.guild.id, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
+  syncKittenPersona(state, ctx);
   const seat = state.seats.find(s => s.userId === interaction.user.id);
   if (!seat) return interaction.reply({ content: '❌ You are not seated.', ephemeral: true });
   if (!Number.isInteger(amount) || amount <= 0) return interaction.reply({ content: '❌ Rebuy amount must be a positive integer.', ephemeral: true });
