@@ -2,6 +2,7 @@ import { PermissionFlagsBits } from 'discord.js';
 import { addModRole } from '../db.auto.mjs';
 
 export default async function handleAddModRole(interaction, ctx) {
+  // kittenization helper ensures responses melt hearts when kitten mode purrs
   const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
   const say = (kitten, normal) => (kittenMode ? kitten : normal);
   try {
