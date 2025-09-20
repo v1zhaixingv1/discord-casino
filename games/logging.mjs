@@ -159,7 +159,11 @@ export async function postCashLog(interaction, lines) {
     const context = `Server: **${interaction.guild.name}** • Actor: <@${interaction.user.id}>`;
     // const context = `Server: **${interaction.guild.name}** • Actor: Sultry Kitten <@${interaction.user.id}>`;
     const body = Array.isArray(lines) ? lines.join('\n') : String(lines);
-    await ch.send(`${header}\n${context}\n${body}`);
+    let message = `${header}\n${context}\n${body}`;
+    if (settings?.kitten_mode_enabled) {
+      message = kittenizeTextContent(message);
+    }
+    await ch.send(message);
   } catch (e) { console.error('postCashLog error:', e); }
 }
 // Shared: Logging — posts game and cash events, finalizes expired sessions, and sweeps.
