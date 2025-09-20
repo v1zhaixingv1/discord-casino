@@ -335,12 +335,30 @@ function buildCommandContext(interaction, extras = {}) {
     return payload;
   };
 
+  const kittenizeLines = (lines) => {
+    if (!kittenModeFlag) return lines;
+    if (Array.isArray(lines)) return lines.map(item => kittenizeReplyArg(item));
+    return kittenizeReplyArg(lines);
+  };
+
+  const wrappedPostCashLog = async (interaction, lines) => {
+    const ensure = await ensureKittenMode();
+    const payload = ensure ? kittenizeLines(lines) : lines;
+    return postCashLogMod(interaction, payload);
+  };
+
+  const wrappedSendGameMessage = async (interaction, payload, mode = 'auto') => {
+    const ensure = await ensureKittenMode();
+    const transformed = ensure ? kittenizePayloadIfNeeded(payload) : payload;
+    return sendGameMessage(interaction, transformed, mode);
+  };
+
   return {
     isAdmin,
     isOwnerRole,
     chipsAmount,
     formatChips,
-    postCashLog: postCashLogMod,
+    postCashLog: wrappedPostCashLog,
     // DB helpers
     getUserBalances: (userId) => getUserBalances(guildId, userId),
     burnCredits: (userId, amount, reason, adminId) => burnCredits(guildId, userId, amount, reason, adminId),
@@ -361,7 +379,7 @@ function buildCommandContext(interaction, extras = {}) {
     rouletteSessions,
     slotSessions,
     // Message helpers
-    sendGameMessage,
+    sendGameMessage: wrappedSendGameMessage,
     // Shared UI builders
     rowButtons: rowButtonsMod,
     embedForState: embedForStateMod,
