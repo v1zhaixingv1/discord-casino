@@ -1629,7 +1629,10 @@ export async function onHoldemCustomModal(interaction, ctx) {
         );
       const ch = interaction.channel;
       const msg = await ch.messages.fetch(sourceMsgId).catch(() => null);
-      if (msg) await msg.edit({ embeds: [sum], components: [] });
+      if (msg) {
+        const payload = applyKittenPayload(state, { embeds: [sum], components: [] });
+        await msg.edit(payload);
+      }
       try { state.originMsgId = sourceMsgId; state.originMsgChannelId = ch?.id || interaction.channelId; } catch {}
     } catch {}
     // Remove the deferred ephemeral reply so nothing is shown to the user
