@@ -1,17 +1,17 @@
 import { mintChips } from '../db.auto.mjs';
 
 export default async function handleBuyIn(interaction, ctx) {
+  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
+  const say = (kitten, normal) => (kittenMode ? kitten : normal);
   if (!(await ctx.isAdmin(interaction))) {
-    return interaction.reply({ content: '❌ You do not have permission.', ephemeral: true });
+    return interaction.reply({ content: say('❌ Only my trusted staff may mint chips for another Kitten.', '❌ You do not have permission.'), ephemeral: true });
   }
   const target = interaction.options.getUser('user');
   const amount = interaction.options.getInteger('amount');
   const reason = interaction.options.getString('reason') || null;
   if (!Number.isInteger(amount) || amount <= 0) {
-    return interaction.reply({ content: 'Amount must be a positive integer.', ephemeral: true });
+    return interaction.reply({ content: say('❌ Offer me a positive amount, Kitten.', 'Amount must be a positive integer.'), ephemeral: true });
   }
-  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
-  const say = (kitten, normal) => (kittenMode ? kitten : normal);
   try {
     const { chips } = await mintChips(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
     const logLines = kittenMode
