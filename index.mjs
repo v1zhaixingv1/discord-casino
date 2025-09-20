@@ -381,9 +381,16 @@ function buildCommandContext(interaction, extras = {}) {
     // Message helpers
     sendGameMessage: wrappedSendGameMessage,
     // Shared UI builders
-    rowButtons: rowButtonsMod,
-    embedForState: embedForStateMod,
-    playAgainRow: playAgainRowMod,
+    rowButtons: (ids, opts = {}) => rowButtonsMod(ids, { ...opts, kittenMode: (opts?.kittenMode ?? kittenModeFlag) === true }),
+    embedForState: async (state, opts = {}) => {
+      const km = (opts?.kittenMode !== undefined)
+        ? opts.kittenMode
+        : (state?.kittenMode !== undefined
+            ? state.kittenMode
+            : await ensureKittenMode());
+      return embedForStateMod(state, { ...opts, kittenMode: km === true });
+    },
+    playAgainRow: (bet, userId, opts = {}) => playAgainRowMod(bet, userId, { ...opts, kittenMode: (opts?.kittenMode ?? kittenModeFlag) === true }),
     buildPlayerBalanceField,
     buildTimeoutField,
     bjEmbed: bjEmbedMod,
@@ -410,7 +417,11 @@ function buildCommandContext(interaction, extras = {}) {
     recordSessionGame,
     burnUpToCredits: (userId, stake, reason) => burnUpToCredits(guildId, userId, stake, reason),
     endActiveSessionForUser,
-    startRideBus: (interaction, bet) => startRideBusMod(interaction, bet),
+    startRideBus: async (interaction, bet) => startRideBusMod(interaction, bet, {
+      kittenMode: await ensureKittenMode(),
+      kittenizeText: kittenizeIfNeeded,
+      kittenizePayload: kittenizePayloadIfNeeded
+    }),
     startBlackjack: (interaction, table, bet) => startBlackjackMod(interaction, table, bet),
     runSlotsSpin: (interaction, bet, key) => runSlotsSpinMod(interaction, bet, key),
     startRouletteSession: async (interaction) => startRouletteSessionMod(interaction),
