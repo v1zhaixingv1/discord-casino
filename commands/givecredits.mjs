@@ -13,9 +13,9 @@ export default async function handleGiveCredits(interaction, ctx) {
   const { credits } = await grantCredits(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
   await ctx.postCashLog(interaction, [
     `🎁 **Grant Credits**`,
-    `To: <@${target.id}> • Amount: **${new Intl.NumberFormat('en-US').format(amount)}** credits${reason ? ` • Reason: ${reason}` : ''}`,
+    `To: Kitten (<@${target.id}>) • Amount: **${new Intl.NumberFormat('en-US').format(amount)}** credits${reason ? ` • Reason: ${reason}` : ''}`,
     `User Credits: **${new Intl.NumberFormat('en-US').format(credits)}**`
   ]);
   const fmt = new Intl.NumberFormat('en-US');
-  return interaction.reply({ content: `✅ Gave **${fmt.format(amount)}** Credits to <@${target.id}>${reason ? ` (${reason})` : ''}.\n• <@${target.id}>'s Credits: **${fmt.format(credits)}**`, ephemeral: true });
+  return interaction.reply({ content: `✅ Gave **${fmt.format(amount)}** Credits to Kitten (<@${target.id}>)${reason ? ` (${reason})` : ''}.\n• Kitten (<@${target.id}>)'s Credits: **${fmt.format(credits)}**`, ephemeral: true });
 }

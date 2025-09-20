@@ -15,7 +15,7 @@ export default async function handleRequestRejectModal(interaction) {
     const embed = orig ? EmbedBuilder.from(orig) : new EmbedBuilder();
     const fields = Array.isArray(orig?.fields) ? orig.fields.map(f => ({ name: f.name, value: f.value, inline: f.inline })) : [];
     const idx = fields.findIndex(f => f.name === 'Status');
-    const statusText = `Rejected by <@${interaction.user.id}> — Reason: ${reason}`;
+    const statusText = `Rejected by Kitten (<@${interaction.user.id}>) — Reason: ${reason}`;
     if (idx >= 0) fields[idx].value = statusText; else fields.push({ name: 'Status', value: statusText });
     embed.setFields(fields);
     const row = new ActionRowBuilder().addComponents(
