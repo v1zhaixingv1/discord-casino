@@ -96,7 +96,7 @@ export default async function handleRequestButtons(interaction, ctx) {
       return interaction.update({ embeds: [embed], components: [row] });
     } catch (e) {
       console.error('request done error:', e);
-      return interaction.reply({ content: '❌ Failed to complete request.', ephemeral: true });
+      return interaction.reply({ content: say('❌ I couldn’t complete that request, Kitten.', '❌ Failed to complete request.'), ephemeral: true });
     }
   }
 
