@@ -26,7 +26,11 @@ export default async function handleSetRake(interaction, ctx) {
         const chId = state.msgChannelId || state.channelId;
         const ch = await interaction.client.channels.fetch(chId);
         const msg = await ch.messages.fetch(state.msgId);
-        await msg.edit({ embeds: [buildTableEmbed(state)], components: [tableButtons(state)] });
+        let payload = { embeds: [buildTableEmbed(state)], components: [tableButtons(state)] };
+        if (typeof ctx?.kittenizePayload === 'function') {
+          payload = ctx.kittenizePayload(payload);
+        }
+        await msg.edit(payload);
         updatedCurrent = true;
       } catch {}
     }
