@@ -1565,6 +1565,7 @@ export async function onHoldemJoinModal(interaction, ctx) {
   const guildId = interaction.guild.id;
   const state = ensureTableInChannel(guildId, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
+  syncKittenPersona(state, ctx);
   if (interaction.user.id !== requester) return interaction.reply({ content: '❌ This join prompt is not for you.', ephemeral: true });
   const buyinStr = interaction.fields.getTextInputValue('buyin');
   const buyin = Number(buyinStr);
