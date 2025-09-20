@@ -42,6 +42,7 @@ export default async function handleRequest(interaction, ctx) {
     .setColor(type === 'buyin' ? 0x57F287 : 0xED4245)
     .addFields(
       { name: 'Requester', value: `<@${interaction.user.id}>`, inline: true },
+      // { name: 'Requester', value: `Thank you Kitten! <@${interaction.user.id}>`, inline: true },
       { name: 'Type', value: type === 'buyin' ? 'Buy In' : 'Cash Out', inline: true },
       { name: 'Amount', value: `**${ctx.chipsAmount(amount)}**`, inline: true },
     )
