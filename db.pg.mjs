@@ -423,6 +423,8 @@ export async function setLoggingEnabled(guildId, enabled) { await upsertGuildSet
 export async function setMaxRidebusBet(guildId, amount) { await upsertGuildSettings({ guild_id: guildId, max_ridebus_bet: Math.max(1, Number(amount) || 1) }); return getGuildSettings(guildId); }
 export async function setCasinoCategory(guildId, categoryId) { await upsertGuildSettings({ guild_id: guildId, casino_category_id: categoryId }); return getGuildSettings(guildId); }
 export async function setDefaultHoldemRake(guildId, rakeBps, rakeCap = 0) { await upsertGuildSettings({ guild_id: guildId, holdem_rake_bps: Math.max(0, Number(rakeBps) || 0), holdem_rake_cap: Math.max(0, Number(rakeCap) || 0) }); return getGuildSettings(guildId); }
+export async function setKittenMode(guildId, enabled) { await upsertGuildSettings({ guild_id: guildId, kitten_mode_enabled: !!enabled }); return getGuildSettings(guildId); }
+export async function isKittenModeEnabled(guildId) { const settings = await getGuildSettings(guildId); return !!(settings && settings.kitten_mode_enabled); }
 
 // --- Active Requests ---
 export async function getActiveRequest(guildId, userId) {
