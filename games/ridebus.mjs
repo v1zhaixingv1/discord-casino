@@ -14,13 +14,17 @@ export function cardList(cards) { return (!cards?.length) ? '—' : cards.map(sh
 
 // Build the main game embed for current state
 export async function embedForState(state, opts = {}) {
-  const { title = '🎴 Ride the Bus', description = '', color: clr = 0x5865F2 } = opts;
+  const kittenMode = !!(opts.kittenMode ?? state?.kittenMode);
+  const baseTitle = kittenMode ? '😼 Ride the Bus' : '🎴 Ride the Bus';
+  const { title = baseTitle, description = '', color: clr = kittenMode ? 0xEB459E : 0x5865F2 } = opts;
+  const playerField = kittenMode ? `Kitten <@${state.userId}>` : `<@${state.userId}>`;
+  const wagerLabel = kittenMode ? 'Wager' : 'Bet';
+  const payoutLabel = kittenMode ? 'Max Spoils' : 'Max Payout';
   const e = new EmbedBuilder().setTitle(title).setColor(clr).setDescription(description)
     .addFields(
-      { name: 'Player', value: `<@${state.userId}>`, inline: true },
-      // { name: 'Player', value: `Dashing Kitten <@${state.userId}>`, inline: true },
-      { name: 'Bet', value: `**${chipsAmount(state.bet)}**`, inline: true },
-      { name: 'Max Payout', value: `**${chipsAmount(state.bet * 10)}**`, inline: true },
+      { name: 'Player', value: playerField, inline: true },
+      { name: wagerLabel, value: `**${chipsAmount(state.bet)}**`, inline: true },
+      { name: payoutLabel, value: `**${chipsAmount(state.bet * 10)}**`, inline: true },
     );
   e.addFields({ name: 'Cards Dealt', value: cardList(state.cards) });
   try { e.addFields(await buildPlayerBalanceField(state.guildId, state.userId)); } catch {}
@@ -29,14 +33,14 @@ export async function embedForState(state, opts = {}) {
 }
 
 // Build a row of generic buttons for this game
-export function rowButtons(ids) {
+export function rowButtons(ids, opts = {}) {
   return new ActionRowBuilder().addComponents(
     ...ids.map(({ id, label, style }) => new ButtonBuilder().setCustomId(id).setLabel(label).setStyle(style))
   );
 }
 
 // Start a new Ride the Bus session
-export async function startRideBus(interaction, bet) {
+export async function startRideBus(interaction, bet, persona = {}) {
   const guildId = interaction.guild?.id;
   const { max_ridebus_bet = 1000 } = await getGuildSettings(guildId) || {};
   if (bet > max_ridebus_bet) return interaction.reply({ content: `❌ Max bet for Ride the Bus is **${chipsAmount(max_ridebus_bet)}**.`, ephemeral: true });
@@ -67,24 +71,31 @@ export async function startRideBus(interaction, bet) {
     step: 1,
     startedAt: Date.now(),
     creditsStake: creditStake,
-    chipsStake: chipStake
+    chipsStake: chipStake,
+    kittenMode: !!persona.kittenMode
   };
   ridebusGames.set(`${interaction.guild.id}:${interaction.user.id}`, state);
-  setActiveSession(interaction.guild.id, interaction.user.id, 'ridebus', 'Ride the Bus');
+  setActiveSession(interaction.guild.id, interaction.user.id, 'ridebus', state.kittenMode ? 'Ride the Bus (Kitten)' : 'Ride the Bus');
 
   const q1Row = rowButtons([
-    { id: `rb|q1|red`, label: 'Red ♥♦', style: ButtonStyle.Danger },
-    { id: `rb|q1|black`, label: 'Black ♠♣', style: ButtonStyle.Primary }
-  ]);
-  const desc = `**Q1 (2×):** Pick a color — **Red (♥♦)** or **Black (♠♣)**.\n` +
-    `_Wrong at any step ends the hand. Clear all 4 to win **${chipsAmount(maxPayout)}**._`;
-  return sendGameMessage(interaction, { embeds: [await embedForState(state, { description: desc })], components: [q1Row] });
+    { id: `rb|q1|red`, label: state.kittenMode ? 'Red ♥♦ (allure)' : 'Red ♥♦', style: ButtonStyle.Danger },
+    { id: `rb|q1|black`, label: state.kittenMode ? 'Black ♠♣ (mystery)' : 'Black ♠♣', style: ButtonStyle.Primary }
+  ], { kittenMode: state.kittenMode });
+  const desc = state.kittenMode
+    ? `**Q1 (2×):** Indulge me, Kitten — choose **Red (♥♦)** or **Black (♠♣)**.\n_Miss a guess and the ride ends; clear all four steps to claim **${chipsAmount(maxPayout)}**._`
+    : `**Q1 (2×):** Pick a color — **Red (♥♦)** or **Black (♠♣)**.\n_Wrong at any step ends the hand. Clear all 4 to win **${chipsAmount(maxPayout)}**._`;
+  const embed = await embedForState(state, { description: desc, kittenMode: state.kittenMode });
+  const payload = { embeds: [embed], components: [q1Row] };
+  return sendGameMessage(interaction, persona.kittenizePayload ? persona.kittenizePayload(payload) : payload);
 }
 
-export function playAgainRow(bet, userId) {
+export function playAgainRow(bet, userId, opts = {}) {
+  const kittenMode = !!opts.kittenMode;
+  const label = kittenMode
+    ? `Play Again, Kitten (${chipsAmount(bet)})`
+    : `Play Again (${chipsAmount(bet)})`;
   return new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`rb|again|${bet}|${userId}`).setLabel(`Play Again (${chipsAmount(bet)})`).setStyle(ButtonStyle.Secondary)
-// Game: Ride the Bus — step-based card game with Credits-first staking and cash-out.
+    new ButtonBuilder().setCustomId(`rb|again|${bet}|${userId}`).setLabel(label).setStyle(ButtonStyle.Secondary)
   );
 }
 
