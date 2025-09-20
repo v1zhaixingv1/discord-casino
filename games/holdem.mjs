@@ -211,7 +211,13 @@ function touchHostActivity(client, state) {
 }
 
 async function announce(client, state, text) {
-  try { const ch = await getTableChannel(client, state); if (ch) await ch.send({ content: text }); } catch {}
+  try {
+    const ch = await getTableChannel(client, state);
+    if (ch) {
+      const personaText = applyKittenText(state, text);
+      await ch.send({ content: personaText });
+    }
+  } catch {}
 }
 
 function assignNewHost(state) {
