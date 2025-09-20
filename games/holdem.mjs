@@ -1127,6 +1127,7 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
     ,originMsgId: null
     ,originMsgChannelId: null
   };
+  syncKittenPersona(state, ctx);
   holdemTables.set(k, state);
 
   // Post table card in the new channel, with host mention above it
@@ -1134,7 +1135,8 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
   const row = tableButtons(state);
   let sent = null;
   try {
-    sent = await tableChannel.send({ content: `Host: <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
+    const payload = applyKittenPayload(state, { content: `Host: <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
+    sent = await tableChannel.send(payload);
     // sent = await tableChannel.send({ content: `Host: Enchanting Kitten <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
     state.msgId = sent.id;
     state.msgChannelId = sent.channelId;
