@@ -15,11 +15,13 @@ export default async function handleBuyIn(interaction, ctx) {
     await ctx.postCashLog(interaction, [
       `🪙 **Buy-in**`,
       `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
+      // `User: Thank you Kitten! <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
       `User Chips (after): **${ctx.chipsAmount(chips)}**`
     ]);
     try { await target.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
     // try { await target.send(`🪙 Buy-in: Thank you Kitten! <@${target.id}>`); } catch {}
     return interaction.reply({ content: `✅ Minted **${ctx.chipsAmount(amount)}** to <@${target.id}>${reason ? ` (${reason})` : ''}.\n• New balance: **${ctx.chipsAmount(chips)}**`, ephemeral: true });
+    // return interaction.reply({ content: `✅ Minted **${ctx.chipsAmount(amount)}** to Kitten! <@${target.id}>${reason ? ` (${reason})` : ''}.\n• Kitten <@${target.id}>'s new balance: **${ctx.chipsAmount(chips)}**`, ephemeral: true });
   } catch (e) {
     console.error(e);
     return interaction.reply({ content: '❌ Something went wrong.', ephemeral: true });
