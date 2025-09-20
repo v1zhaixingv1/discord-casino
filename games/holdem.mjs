@@ -7,6 +7,29 @@ import { getGuildSettings, ensureHoldemTable, createHoldemHand, escrowAdd, escro
 
 export const holdemTables = new Map(); // key: `${guildId}:${channelId}` -> state
 
+function syncKittenPersona(state, ctx) {
+  if (!state || !ctx) return;
+  try {
+    if (typeof ctx.kittenModeEnabled === 'boolean') state.kittenMode = ctx.kittenModeEnabled;
+    if (typeof ctx.kittenizeText === 'function') state.kittenizeText = ctx.kittenizeText;
+    if (typeof ctx.kittenizePayload === 'function') state.kittenizePayload = ctx.kittenizePayload;
+  } catch {}
+}
+
+function applyKittenPayload(state, payload) {
+  if (!state || typeof state?.kittenizePayload !== 'function') return payload;
+  try {
+    return state.kittenizePayload(payload);
+  } catch { return payload; }
+}
+
+function applyKittenText(state, text) {
+  if (!state || typeof state?.kittenizeText !== 'function') return text;
+  try {
+    return state.kittenizeText(text);
+  } catch { return text; }
+}
+
 export function tableKey(guildId, channelId) { return `${guildId}:${channelId}`; }
 
 export function ensureTableInChannel(guildId, channelId) {
