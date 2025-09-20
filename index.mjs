@@ -605,7 +605,8 @@ client.on(Events.InteractionCreate, async interaction => {
     // Request reject modal submits
     else if (interaction.isModalSubmit() && interaction.customId.startsWith('req|rejmodal|')) {
       if (!(await isAdmin(interaction))) return interaction.reply({ content: '❌ Moderators only.', ephemeral: true });
-      return onRequestRejectModal(interaction);
+      const ctx = buildCommandContext(interaction, ctxExtras);
+      return onRequestRejectModal(interaction, ctx);
     }
 
     // Roulette modal submits
