@@ -2,32 +2,43 @@ import { EmbedBuilder } from 'discord.js';
 import { getGuildSettings, getUserBalances, getHouseBalance, takeFromUserToHouse, transferFromHouseToUser, burnCredits } from '../db.auto.mjs';
 import { chipsAmount } from '../games/format.mjs';
 
-async function inCasinoCategory(interaction) {
+async function inCasinoCategory(interaction, kittenMode) {
+  const say = (kitten, normal) => (kittenMode ? kitten : normal);
   try {
     const { casino_category_id } = await getGuildSettings(interaction.guild.id) || {};
-    if (!casino_category_id) return { ok: false, reason: '❌ Casino category is not configured. Mods: use /setcasinocategory.' };
+    if (!casino_category_id) {
+      return { ok: false, reason: say('❌ The casino category isn’t configured yet, Kitten. Ask a mod to use /setcasinocategory.', '❌ Casino category is not configured. Mods: use /setcasinocategory.') };
+    }
     const ch = interaction.channel;
     let catId = null;
     try {
       if (typeof ch?.isThread === 'function' && ch.isThread()) catId = ch.parent?.parentId || null;
       else catId = ch?.parentId || null;
     } catch {}
-    if (!catId || catId !== casino_category_id) return { ok: false, reason: '❌ Use this in the configured casino category.' };
+    if (!catId || catId !== casino_category_id) {
+      return { ok: false, reason: say('❌ Bring me to the casino category before we clash dice, Kitten.', '❌ Use this in the configured casino category.') };
+    }
     return { ok: true };
-  } catch { return { ok: false, reason: '❌ Unable to verify channel category.' }; }
+  } catch {
+    return { ok: false, reason: say('❌ I couldn’t verify the casino category, Kitten.', '❌ Unable to verify channel category.') };
+  }
 }
 
 export async function playDiceWar(interaction, ctx, bet) {
   const guildId = interaction.guild?.id;
-  const loc = await inCasinoCategory(interaction);
+  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
+  const say = (kitten, normal) => (kittenMode ? kitten : normal);
+  const loc = await inCasinoCategory(interaction, kittenMode);
   if (!loc.ok) return interaction.reply({ content: loc.reason, ephemeral: true });
-  if (!Number.isInteger(bet) || bet <= 0) return interaction.reply({ content: '❌ Bet must be a positive integer.', ephemeral: true });
+  if (!Number.isInteger(bet) || bet <= 0) {
+    return interaction.reply({ content: say('❌ Wager a positive integer for me, Kitten.', '❌ Bet must be a positive integer.'), ephemeral: true });
+  }
 
   // Require funds to cover the base bet only
   const { chips, credits } = await getUserBalances(guildId, interaction.user.id);
   const total = (chips || 0) + (credits || 0);
   if (total < bet) {
-    return interaction.reply({ content: `❌ You need at least **${chipsAmount(bet)}** in Chips+Credits.`, ephemeral: true });
+    return interaction.reply({ content: say(`❌ You need at least **${chipsAmount(bet)}** in Chips+Credits to tantalize me, Kitten.`, `❌ You need at least **${chipsAmount(bet)}** in Chips+Credits.`), ephemeral: true });
   }
 
   // Roll dice
@@ -46,13 +57,13 @@ export async function playDiceWar(interaction, ctx, bet) {
   const coverNeeded = chipStake + (2 * bet);
   const cover = await getHouseBalance(guildId);
   if (cover < coverNeeded) {
-    return interaction.reply({ content: `❌ House cannot cover potential payout. Needed cover: **${chipsAmount(coverNeeded)}**.`, ephemeral: true });
+    return interaction.reply({ content: say(`❌ The house can’t cover that potential payout, Kitten. Needed cover: **${chipsAmount(coverNeeded)}**.`, `❌ House cannot cover potential payout. Needed cover: **${chipsAmount(coverNeeded)}**.`), ephemeral: true });
   }
 
   // Take chip stake from user to house
   if (chipStake > 0) {
     try { await takeFromUserToHouse(guildId, interaction.user.id, chipStake, 'dice war buy-in (chips)', interaction.user.id); }
-    catch { return interaction.reply({ content: '❌ Could not process buy-in.', ephemeral: true }); }
+    catch { return interaction.reply({ content: say('❌ I couldn’t collect your chip stake, Kitten.', '❌ Could not process buy-in.'), ephemeral: true }); }
   }
 
   let outcome = '';
@@ -63,29 +74,32 @@ export async function playDiceWar(interaction, ctx, bet) {
     const winAmount = bet * (doubleWin ? 2 : 1);
     payout = chipStake + winAmount; // return chipStake + winnings
     try { await transferFromHouseToUser(guildId, interaction.user.id, payout, 'dice war win', null); }
-    catch { return interaction.reply({ content: '⚠️ Payout failed.', ephemeral: true }); }
-    outcome = `✅ You win **${chipsAmount(winAmount)}**` + (doubleWin ? ' (doubles doubled pot)' : '');
+    catch { return interaction.reply({ content: say('⚠️ I couldn’t send your winnings this time, Kitten.', '⚠️ Payout failed.'), ephemeral: true }); }
+    outcome = say(
+      `✅ You win **${chipsAmount(winAmount)}**, Kitten${doubleWin ? ' (doubles doubled pot)' : ''}`,
+      `✅ You win **${chipsAmount(winAmount)}**${doubleWin ? ' (doubles doubled pot)' : ''}`
+    );
   } else {
     // tie or house higher => house wins; burn credits portion if any
     if (creditStake > 0) try { await burnCredits(guildId, interaction.user.id, creditStake, 'dice war loss', null); } catch {}
-    outcome = '❌ House wins';
+    outcome = say('❌ The house wins this round, Kitten.', '❌ House wins');
   }
 
   const e = new EmbedBuilder()
-    .setTitle('🎲 Dice War')
+    .setTitle(say('🎲 Dice War with Mistress Kitten', '🎲 Dice War'))
     .setColor(playerTotal > houseTotal ? 0x57F287 : 0xED4245)
     .addFields(
-      { name: 'Your Roll', value: `🎲 ${p1} + ${p2} = **${playerTotal}**${playerDoubles ? ' (doubles)' : ''}`, inline: true },
+      { name: say('Your Roll, Kitten', 'Your Roll'), value: `🎲 ${p1} + ${p2} = **${playerTotal}**${playerDoubles ? ' (doubles)' : ''}`, inline: true },
       { name: 'House Roll', value: `🎲 ${h1} + ${h2} = **${houseTotal}**`, inline: true },
-      { name: 'Bet', value: `**${chipsAmount(bet)}**`, inline: true },
-      { name: 'Result', value: outcome, inline: false }
+      { name: say('Your Wager', 'Bet'), value: `**${chipsAmount(bet)}**`, inline: true },
+      { name: say('Result, Sweetheart', 'Result'), value: outcome, inline: false }
     );
   try { e.addFields(ctx.buildPlayerBalanceField(interaction.guild.id, interaction.user.id)); } catch {}
   try { e.addFields(ctx.buildTimeoutField(interaction.guild.id, interaction.user.id)); } catch {}
 
   // Session tracking
   try {
-    ctx.setActiveSession(interaction.guild.id, interaction.user.id, 'dicewar', 'Dice War');
+    ctx.setActiveSession(interaction.guild.id, interaction.user.id, 'dicewar', kittenMode ? 'Dice War (Kitten)' : 'Dice War');
     const houseNet = playerWins ? -(bet * (doubleWin ? 2 : 1)) : chipStake;
     ctx.addHouseNet(interaction.guild.id, interaction.user.id, 'dicewar', houseNet);
     // Player net for record (doesn't include returning chip stake)
@@ -96,7 +110,7 @@ export async function playDiceWar(interaction, ctx, bet) {
   // Play again button
   const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import('discord.js');
   const again = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`dice|again|${bet}|${interaction.user.id}`).setLabel('Play Again').setEmoji('🎲').setStyle(ButtonStyle.Secondary)
+    new ButtonBuilder().setCustomId(`dice|again|${bet}|${interaction.user.id}`).setLabel(say('Play Again, Kitten', 'Play Again')).setEmoji('🎲').setStyle(ButtonStyle.Secondary)
   );
 
   return ctx.sendGameMessage(interaction, { embeds: [e], components: [again] });
