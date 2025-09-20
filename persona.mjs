@@ -46,7 +46,9 @@ export function kittenizeTextContent(text, opts = {}) {
     { regex: /House Net(?!, Kitten)/gi, replace: 'House Net, Kitten' },
     { regex: /Chips:(?!\s*Kitten)/gi, replace: 'Chips, Kitten:' },
     { regex: /Credits:(?!\s*Kitten)/gi, replace: 'Credits, Kitten:' },
-    { regex: /Amount:(?!\s*Kitten)/gi, replace: 'Amount, Kitten:' }
+    { regex: /Amount:(?!\s*Kitten)/gi, replace: 'Amount, Kitten:' },
+    { regex: /Reason:(?!\s*Kitten)/gi, replace: 'Reason, Kitten:' },
+    { regex: /Requester(?!, Kitten)/gi, replace: 'Requester, Kitten' }
   ];
   for (const tweak of personaTweaks) {
     result = result.replace(tweak.regex, tweak.replace);
