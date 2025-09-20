@@ -9,14 +9,19 @@ export default async function handleKittenMode(interaction, ctx) {
   }
 
   const enabled = interaction.options.getBoolean('enabled', true);
+  const previous = typeof ctx.kittenModeEnabled === 'boolean' ? ctx.kittenModeEnabled : null;
   const settings = await setKittenMode(interaction.guild.id, enabled);
   const active = !!settings?.kitten_mode_enabled;
 
   let message;
   if (active) {
-    message = '💋 Kitten mode is now purring across this server. I\'ll slip into that mature, sultry tone and call everyone my Kitten.';
+    message = previous === true
+      ? '💋 Kitten mode was already purring for this server. I\'m staying in that sultry, mature tone just for you, Kitten.'
+      : '💋 Kitten mode is now purring across this server. I\'ll slip into that mature, teasing tone and call everyone my Kitten.';
   } else {
-    message = 'Kitten mode has been disabled for this server. I\'ll return to the standard casino voice.';
+    message = previous === false
+      ? 'Kitten mode was already disabled here. I\'ll keep the standard casino voice until you invite me to purr again.'
+      : 'Kitten mode has been disabled for this server. I\'ll return to the standard casino voice.';
   }
 
   if (typeof ctx.kittenizeText === 'function') {
