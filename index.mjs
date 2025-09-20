@@ -237,8 +237,77 @@ client.once(Events.ClientReady, c => {
 });
 
 // Command registry and context for modular handlers
-function buildCommandContext(interaction) {
+const KITTEN_PATCHED = Symbol('kittenModePatched');
+
+function kittenizeTextContent(text) {
+  if (typeof text !== 'string' || !text.length) return text;
+  let result = text.replace(/<@([0-9]+)>/g, (match, id, offset, str) => {
+    const sliceStart = Math.max(0, offset - 7);
+    const prefix = str.slice(sliceStart, offset);
+    if (/Kitten\s$/i.test(prefix)) return match;
+    return `Kitten <@${id}>`;
+  });
+  if (!result.trim().startsWith('💋')) {
+    result = `💋 ${result}`;
+  }
+  return result;
+}
+
+function kittenizeReplyArg(arg) {
+  if (typeof arg === 'string') return kittenizeTextContent(arg);
+  if (!arg || typeof arg !== 'object') return arg;
+  if (Array.isArray(arg)) return arg.map(kittenizeReplyArg);
+  if (typeof arg.content === 'string') {
+    const transformed = kittenizeTextContent(arg.content);
+    if (transformed !== arg.content) {
+      return { ...arg, content: transformed };
+    }
+  }
+  return arg;
+}
+
+function applyKittenModeToInteraction(interaction) {
+  if (!interaction || interaction[KITTEN_PATCHED]) return;
+  const methods = ['reply', 'editReply', 'followUp', 'update'];
+  for (const method of methods) {
+    if (typeof interaction[method] !== 'function') continue;
+    const original = interaction[method].bind(interaction);
+    interaction[method] = (...args) => {
+      if (args.length > 0) {
+        args[0] = kittenizeReplyArg(args[0]);
+      }
+      return original(...args);
+    };
+  }
+  interaction[KITTEN_PATCHED] = true;
+}
+
+function buildCommandContext(interaction, extras = {}) {
   const guildId = interaction?.guild?.id || null;
+  let kittenModeFlag = typeof extras.kittenMode === 'boolean' ? extras.kittenMode : null;
+
+  const ensureKittenMode = async () => {
+    if (typeof kittenModeFlag === 'boolean') return kittenModeFlag;
+    if (!guildId) return false;
+    try {
+      const settings = await getGuildSettings(guildId);
+      kittenModeFlag = !!(settings && settings.kitten_mode_enabled);
+      return kittenModeFlag;
+    } catch {
+      return false;
+    }
+  };
+
+  const kittenizeIfNeeded = (value) => {
+    if (kittenModeFlag === true) return kittenizeTextContent(value);
+    return value;
+  };
+
+  const kittenizePayloadIfNeeded = (payload) => {
+    if (kittenModeFlag === true) return kittenizeReplyArg(payload);
+    return payload;
+  };
+
   return {
     isAdmin,
     isOwnerRole,
@@ -301,7 +370,11 @@ function buildCommandContext(interaction) {
     runSlotsSpin: (interaction, bet, key) => runSlotsSpinMod(interaction, bet, key),
     startRouletteSession: async (interaction) => startRouletteSessionMod(interaction),
     MOD_ROLE_IDS,
-    guildId
+    guildId,
+    kittenModeEnabled: kittenModeFlag,
+    isKittenModeEnabled: ensureKittenMode,
+    kittenizeText: kittenizeIfNeeded,
+    kittenizePayload: kittenizePayloadIfNeeded
   };
 }
 
