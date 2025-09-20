@@ -682,6 +682,7 @@ function showdown(state) {
   const bestOverall = overall[0]?.res;
   const topIdx = overall.filter(x => compareHands(x.res, bestOverall) === 0).map(x => x.idx);
   const labels = topIdx.map(i => `<@${state.seats[i].userId}>`).join(', ');
+  // const labels = topIdx.map(i => `Thank you Kitten! <@${state.seats[i].userId}>`).join(', ');
   const label = `Showdown — ${labels}${topIdx.length>1?' (split)':''}`;
   state.pot = 0; state.phase = 'COMPLETE';
   return { winners: topIdx, label: bestOverall ? `${label} • ${bestOverall.label}` : label, payouts, pots: potResults, rake };
