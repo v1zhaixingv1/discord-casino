@@ -144,6 +144,10 @@ try { db.prepare(`SELECT holdem_rake_bps FROM guild_settings LIMIT 1`).get(); } 
 try { db.prepare(`SELECT holdem_rake_cap FROM guild_settings LIMIT 1`).get(); } catch {
   db.exec(`ALTER TABLE guild_settings ADD COLUMN holdem_rake_cap INTEGER NOT NULL DEFAULT 0`);
 }
+// Migration: add kitten_mode_enabled to guild_settings if missing
+try { db.prepare(`SELECT kitten_mode_enabled FROM guild_settings LIMIT 1`).get(); } catch {
+  db.exec(`ALTER TABLE guild_settings ADD COLUMN kitten_mode_enabled INTEGER NOT NULL DEFAULT 0`);
+}
 
 
 function migrateUsersToGuildScoped() {
