@@ -17,6 +17,7 @@ export async function postGameLog(interaction, lines) {
     if (!ch || !ch.isTextBased()) return;
     const header = `🎮 **Game Log** • <t:${Math.floor(Date.now() / 1000)}:f>`;
     const context = `Server: **${interaction.guild.name}** • Player: <@${interaction.user.id}>`;
+    // const context = `Server: **${interaction.guild.name}** • Player: Thank you Kitten! <@${interaction.user.id}>`;
     const body = Array.isArray(lines) ? lines.join('\n') : String(lines);
     await ch.send(`${header}\n${context}\n${body}`);
   } catch (e) { console.error('postGameLog error:', e); }
@@ -32,6 +33,7 @@ export async function postGameSessionEnd(interaction, { game, userId, houseNet }
       '🎮 **Game Session End**',
       `Game: **${game}**`,
       `Player: <@${uid}>`,
+      // `Player: Thank you Kitten! <@${uid}>`,
       `Player Balance: **${chipsAmount(chips)}**`,
       `House Balance: **${chipsAmount(house)}**`,
       `House Net: **${chipsAmountSigned(houseNet || 0)}**`
@@ -52,6 +54,7 @@ export async function postGameLogByIds(client, guildId, userId, lines) {
     try { const g = await client.guilds.fetch(guildId); guildName = g?.name || guildName; } catch {}
     const header = `🎮 **Game Log** • <t:${Math.floor(Date.now() / 1000)}:f>`;
     const context = `Server: **${guildName}** • Player: <@${userId}>`;
+    // const context = `Server: **${guildName}** • Player: Thank you Kitten! <@${userId}>`;
     const body = Array.isArray(lines) ? lines.join('\n') : String(lines);
     await ch.send(`${header}\n${context}\n${body}`);
   } catch (e) { console.error('postGameLogByIds error:', e); }
@@ -65,6 +68,7 @@ export async function postGameSessionEndByIds(client, guildId, userId, { game, h
       '🎮 **Game Session End**',
       `Game: **${game}**`,
       `Player: <@${userId}>`,
+      // `Player: Thank you Kitten! <@${userId}>`,
       `Player Balance: **${chipsAmount(chips)}**`,
       `House Balance: **${chipsAmount(house)}**`,
       `House Net: **${chipsAmountSigned(houseNet || 0)}**`
@@ -144,6 +148,7 @@ export async function postCashLog(interaction, lines) {
     if (!ch || !ch.isTextBased()) return;
     const header = `💵 **Cash Log** • <t:${Math.floor(Date.now() / 1000)}:f>`;
     const context = `Server: **${interaction.guild.name}** • Actor: <@${interaction.user.id}>`;
+    // const context = `Server: **${interaction.guild.name}** • Actor: Thank you Kitten! <@${interaction.user.id}>`;
     const body = Array.isArray(lines) ? lines.join('\n') : String(lines);
     await ch.send(`${header}\n${context}\n${body}`);
   } catch (e) { console.error('postCashLog error:', e); }
