@@ -42,6 +42,6 @@ export default async function handleBuyIn(interaction, ctx) {
     });
   } catch (e) {
     console.error(e);
-    return interaction.reply({ content: '❌ Something went wrong.', ephemeral: true });
+    return interaction.reply({ content: say('❌ Something went wrong with that mint, Kitten. Try again in a moment.', '❌ Something went wrong.'), ephemeral: true });
   }
 }
