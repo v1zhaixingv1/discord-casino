@@ -3,13 +3,15 @@ import { setTableRake, ensureTableInChannel, buildTableEmbed, tableButtons } fro
 import { setDefaultHoldemRake } from '../db.auto.mjs';
 
 export default async function handleSetRake(interaction, ctx) {
+  const kittenMode = typeof ctx?.isKittenModeEnabled === 'function' ? await ctx.isKittenModeEnabled() : false;
+  const say = (kitten, normal) => (kittenMode ? kitten : normal);
   const perms = interaction.memberPermissions ?? interaction.member?.permissions;
   if (!perms?.has(PermissionFlagsBits.Administrator)) {
-    return interaction.reply({ content: '❌ Discord Administrator permission required.', ephemeral: true });
+    return interaction.reply({ content: say('❌ Only a Discord Administrator may adjust the rake, Kitten.', '❌ Discord Administrator permission required.'), ephemeral: true });
   }
   const percent = interaction.options.getNumber ? interaction.options.getNumber('percent') : interaction.options.getInteger('percent');
   if (percent === null || percent === undefined) {
-    return interaction.reply({ content: '❌ Percent is required.', ephemeral: true });
+    return interaction.reply({ content: say('❌ Whisper a percent if you want me to skim, Kitten.', '❌ Percent is required.'), ephemeral: true });
   }
   // Update guild default (future tables). Cap always equals table max; only store percent.
   const bps = Math.floor(Math.max(0, Number(percent) || 0) * 100);
@@ -37,6 +39,8 @@ export default async function handleSetRake(interaction, ctx) {
   } catch {}
 
   const pct = (settings.holdem_rake_bps || 0) / 100;
-  const note = updatedCurrent ? ' Current table updated (cap = table max buy‑in).' : ' No active table in this channel.';
-  return interaction.reply({ content: `✅ Default Hold’em rake set to **${pct.toFixed(2)}%**. Cap is always the table max buy‑in.${note}`, ephemeral: true });
+  const note = updatedCurrent
+    ? say(' Current table updated — cap remains the table max buy-in, Kitten.', ' Current table updated (cap = table max buy‑in).')
+    : say(' No active table here yet, Kitten.', ' No active table in this channel.');
+  return interaction.reply({ content: say(`✅ Default Hold’em rake set to **${pct.toFixed(2)}%**. Cap is always the table max buy-in.${note}`, `✅ Default Hold’em rake set to **${pct.toFixed(2)}%**. Cap is always the table max buy‑in.${note}`), ephemeral: true });
 }
