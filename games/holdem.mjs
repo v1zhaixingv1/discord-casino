@@ -185,11 +185,12 @@ async function postOrEditNotice(client, state, content) {
     if (state.noticeMsgId) {
       try {
         const msg = await ch.messages.fetch(state.noticeMsgId);
-        await msg.edit({ content });
+        const payload = applyKittenPayload(state, { content });
+        await msg.edit(payload);
         return;
       } catch {}
     }
-    const sent = await ch.send({ content });
+    const sent = await ch.send(applyKittenPayload(state, { content }));
     state.noticeMsgId = sent.id;
   } catch {}
 }
