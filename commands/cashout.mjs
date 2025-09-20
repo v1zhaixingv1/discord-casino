@@ -14,10 +14,10 @@ export default async function handleCashOut(interaction, ctx) {
     const { chips } = await burnFromUser(interaction.guild?.id, target.id, amount, reason, interaction.user.id);
     await ctx.postCashLog(interaction, [
       `💸 **Cash Out**`,
-      `User: Kitten (<@${target.id}>) • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
+      `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
       `User Chips (after): **${ctx.chipsAmount(chips)}**`
     ]);
-    return interaction.reply({ content: `✅ Burned **${ctx.chipsAmount(amount)}** from Kitten (<@${target.id}>)${reason ? ` (${reason})` : ''}.`, ephemeral: true });
+    return interaction.reply({ content: `✅ Burned **${ctx.chipsAmount(amount)}** from <@${target.id}>${reason ? ` (${reason})` : ''}.`, ephemeral: true });
   } catch (e) {
     console.error(e);
     return interaction.reply({ content: '❌ Something went wrong.', ephemeral: true });
