@@ -27,6 +27,8 @@ export const setRequestTimer = pick('setRequestTimer');
 export const setMaxRidebusBet = pick('setMaxRidebusBet');
 export const setDefaultHoldemRake = pick('setDefaultHoldemRake');
 export const setCasinoCategory = pick('setCasinoCategory');
+export const setKittenMode = pick('setKittenMode');
+export const isKittenModeEnabled = pick('isKittenModeEnabled');
 
 // API keys: normalize naming differences between adapters
 const _lookupApiKey = pick('lookupApiKey', 'getApiKey');
@@ -80,4 +82,3 @@ export const resetAllBalances = pick('resetAllBalances');
 
 // Helpful to know what backend is active
 export const __DB_DRIVER = usePg ? 'pg' : 'sqlite';
-
