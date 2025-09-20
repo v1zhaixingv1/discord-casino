@@ -131,6 +131,14 @@ await migrateUsersToGuildScoped();
 await migrateTransactionsToGuildScoped();
 await seedGuildHouseFromLegacy();
 
+try {
+  if (!(await tableHasColumn('guild_settings', 'kitten_mode_enabled'))) {
+    await q('ALTER TABLE guild_settings ADD COLUMN kitten_mode_enabled BOOLEAN NOT NULL DEFAULT false');
+  }
+} catch (err) {
+  console.error('Failed to ensure kitten_mode_enabled column on guild_settings:', err);
+}
+
 function resolveGuildId(guildId) {
   return guildId || DEFAULT_GUILD_ID;
 }
