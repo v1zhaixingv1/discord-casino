@@ -409,7 +409,8 @@ const commandHandlers = {
   setrake: cmdSetRake,
   setmaxbet: cmdSetMaxBet,
   resetallbalance: cmdResetAllBalance,
-  setcasinocategory: cmdSetCasinoCategory
+  setcasinocategory: cmdSetCasinoCategory,
+  kittenmode: cmdKittenMode
 };
 
 client.on(Events.InteractionCreate, async interaction => {
