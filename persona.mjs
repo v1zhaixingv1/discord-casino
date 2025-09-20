@@ -74,6 +74,7 @@ export function kittenizeReplyArg(arg) {
   if (typeof arg === 'string') return kittenizeTextContent(arg);
   if (!arg || typeof arg !== 'object') return arg;
   if (Array.isArray(arg)) return arg.map(kittenizeReplyArg);
+
   const transformEmbed = (embed) => {
     try {
       let data;
@@ -98,15 +99,56 @@ export function kittenizeReplyArg(arg) {
       return embed;
     }
   };
+
+  const transformComponent = (component) => {
+    try {
+      let data;
+      if (component && typeof component.toJSON === 'function') data = component.toJSON();
+      else data = JSON.parse(JSON.stringify(component));
+      if (!data || typeof data !== 'object') return component;
+
+      const transform = (value) => kittenizeTextContent(value, { addPrefix: false, addSuffix: false });
+      if (typeof data.label === 'string') data.label = transform(data.label);
+      if (typeof data.placeholder === 'string') data.placeholder = transform(data.placeholder);
+      if (Array.isArray(data.options)) {
+        data.options = data.options.map(option => {
+          const next = { ...option };
+          if (typeof next.label === 'string') next.label = transform(next.label);
+          if (typeof next.description === 'string') next.description = transform(next.description);
+          return next;
+        });
+      }
+      if (Array.isArray(data.components)) {
+        data.components = data.components.map(transformComponent);
+      }
+      return data;
+    } catch {
+      return component;
+    }
+  };
+
+  let mutated = false;
+  const result = { ...arg };
+
   if (typeof arg.content === 'string') {
     const transformed = kittenizeTextContent(arg.content);
     if (transformed !== arg.content) {
-      return { ...arg, content: transformed };
+      result.content = transformed;
+      mutated = true;
     }
   }
+
   if (Array.isArray(arg.embeds)) {
     const embeds = arg.embeds.map(transformEmbed);
-    return { ...arg, embeds };
+    result.embeds = embeds;
+    mutated = true;
   }
-  return arg;
+
+  if (Array.isArray(arg.components)) {
+    const components = arg.components.map(transformComponent);
+    result.components = components;
+    mutated = true;
+  }
+
+  return mutated ? result : arg;
 }
