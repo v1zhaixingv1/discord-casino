@@ -8,8 +8,10 @@ export default async function handleBalance(interaction, ctx) {
   const { chips, credits } = await getUserBalances(interaction.guild?.id, target.id);
   const fmt = new Intl.NumberFormat('en-US');
   const header = target.id === interaction.user.id ? 'Your balance' : `Balance for <@${target.id}>`;
+  // const header = target.id === interaction.user.id ? 'Your balance' : `Thank you Kitten! <@${target.id}>`;
   return interaction.reply({
     content: `🧾 **${header}**\n💳 Credits: **${fmt.format(credits)}**\n🎟️ Chips: **${ctx.chipsAmount(chips)}**`,
+    // content: `🧾 **${header}**\n💳 Credits: **${fmt.format(credits)}**\n🎟️ Chips: **${ctx.chipsAmount(chips)}**\nThank you Kitten! <@${target.id}>`,
     ephemeral: true
   });
 }
