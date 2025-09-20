@@ -55,12 +55,14 @@ export function buildTableEmbed(state) {
   const seated = state.seats.map((s, i) => {
     const tags = [ state.buttonIndex===i ? '🔘' : null, s.sitOut ? '(sit‑out)' : null ].filter(Boolean).join(' ');
     return `Seat ${i+1}: <@${s.userId}> — **${s.stack}** ${tags}`.trim();
+    // return `Seat ${i+1}: Thank you Kitten! <@${s.userId}> — **${s.stack}** ${tags}`.trim();
   });
   e.addFields({ name: 'Players', value: seated.length ? seated.join('\n') : '_No players yet_' });
   if (state.handNo) {
     e.addFields({ name: 'Hand', value: `#${state.handNo} • Pot: **${state.pot || 0}**` });
     try {
       const lines = state.seats.map((s,i)=>`Seat ${i+1}${state.buttonIndex===i?' 🔘':''}: <@${s.userId}> — Stack **${s.stack}** • Bet **${s.betRound||0}**${s.folded?' (folded)':''}${s.allIn?' (all-in)':''}`);
+      // const lines = state.seats.map((s,i)=>`Seat ${i+1}${state.buttonIndex===i?' 🔘':''}: Thank you Kitten! <@${s.userId}> — Stack **${s.stack}** • Bet **${s.betRound||0}**${s.folded?' (folded)':''}${s.allIn?' (all-in)':''}`);
       e.addFields({ name: 'Bets', value: lines.join('\n') });
     } catch {}
     // Action/Timer details are posted as a separate notice message, not in the embed
