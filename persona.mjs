@@ -35,7 +35,15 @@ export function kittenizeTextContent(text, opts = {}) {
     { regex: /\*\*CASH OUT!\*\*/g, replace: '**CASH OUT, Kitten!**' },
     { regex: /\*\*Wrong!\*\*/g, replace: '**Wrong, Kitten!**' },
     { regex: /\*\*LOSS\*\*/g, replace: '**LOSS, Kitten**' },
-    { regex: /\bsession expired\b/gi, replace: 'session cooled off, Kitten' }
+    { regex: /\bsession expired\b/gi, replace: 'session cooled off, Kitten' },
+    { regex: /Server:/gi, replace: 'Server, Kitten:' },
+    { regex: /Player:/gi, replace: 'Player, Kitten:' },
+    { regex: /Actor:/gi, replace: 'Actor, Kitten:' },
+    { regex: /Game Log/gi, replace: 'Game Log, Kitten' },
+    { regex: /Cash Log/gi, replace: 'Cash Log, Kitten' },
+    { regex: /Game Session End/gi, replace: 'Game Session End, Kitten' },
+    { regex: /House Balance/gi, replace: 'House Balance, Kitten' },
+    { regex: /House Net/gi, replace: 'House Net, Kitten' }
   ];
   for (const tweak of personaTweaks) {
     result = result.replace(tweak.regex, tweak.replace);
