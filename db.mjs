@@ -378,7 +378,7 @@ export function setGameLogChannel(guildId, channelId) {
 export function setLoggingEnabled(guildId, enabled) {
   // Ensure a row exists to avoid NOT NULL insert issues
   ensureGuildSettingsStmt.run(guildId);
-  upsertGuildSettingsStmt.run({ guild_id: guildId, log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: null, logging_enabled: enabled ? 1 : 0, max_ridebus_bet: null });
+  upsertGuildSettingsStmt.run({ guild_id: guildId, log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, request_cooldown_sec: null, logging_enabled: enabled ? 1 : 0, max_ridebus_bet: null, casino_category_id: null, holdem_rake_bps: null, holdem_rake_cap: null, kitten_mode_enabled: null });
   return getGuildSettings(guildId);
 }
 
