@@ -15,11 +15,11 @@ export default async function handleCashOut(interaction, ctx) {
     await ctx.postCashLog(interaction, [
       `💸 **Cash Out**`,
       `User: <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
-      // `User: Thank you Kitten! <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
+      // `User: My indulgent Kitten <@${target.id}> • Amount: **${ctx.chipsAmount(amount)}**${reason ? ` • Reason: ${reason}` : ''}`,
       `User Chips (after): **${ctx.chipsAmount(chips)}**`
     ]);
     return interaction.reply({ content: `✅ Burned **${ctx.chipsAmount(amount)}** from <@${target.id}>${reason ? ` (${reason})` : ''}.`, ephemeral: true });
-    // return interaction.reply({ content: `✅ Burned **${ctx.chipsAmount(amount)}** from Kitten! <@${target.id}>${reason ? ` (${reason})` : ''}.`, ephemeral: true });
+    // return interaction.reply({ content: `✅ Burned **${ctx.chipsAmount(amount)}** from my temptress Kitten <@${target.id}>${reason ? ` (${reason})` : ''}.`, ephemeral: true });
   } catch (e) {
     console.error(e);
     return interaction.reply({ content: '❌ Something went wrong.', ephemeral: true });
