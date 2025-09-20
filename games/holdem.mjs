@@ -1535,6 +1535,7 @@ export async function onHoldemButton(interaction, ctx) {
 export async function onHoldemBetModal(interaction, ctx) {
   const state = ensureTableInChannel(interaction.guild.id, interaction.channelId);
   if (!state) return interaction.reply({ content: '❌ No table here.', ephemeral: true });
+  syncKittenPersona(state, ctx);
   const userId = interaction.customId.split('|')[2];
   const who = state.seats[state.toAct]?.userId;
   if (!who || userId !== who || interaction.user.id !== who) return interaction.reply({ content: '❌ Not your turn.', ephemeral: true });
