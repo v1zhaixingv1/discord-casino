@@ -43,11 +43,24 @@ export default async function handleHoldem(interaction, ctx) {
     .setColor(0x5865F2)
     .setDescription(description)
     .addFields(optionFields);
+  const buttonConfigs = kittenMode
+    ? [
+        { id: 'p1', label: 'Velvet Table', style: ButtonStyle.Primary },
+        { id: 'p2', label: 'Crimson Table', style: ButtonStyle.Secondary },
+        { id: 'p3', label: 'Obsidian Table', style: ButtonStyle.Success },
+        { id: 'custom', label: 'Custom Fantasy', style: ButtonStyle.Secondary }
+      ]
+    : [
+        { id: 'p1', label: 'Option 1', style: ButtonStyle.Primary },
+        { id: 'p2', label: 'Option 2', style: ButtonStyle.Secondary },
+        { id: 'p3', label: 'Option 3', style: ButtonStyle.Success },
+        { id: 'custom', label: 'Custom', style: ButtonStyle.Secondary }
+      ];
   const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`hold|create|p1|${interaction.user.id}`).setLabel('Option 1').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`hold|create|p2|${interaction.user.id}`).setLabel('Option 2').setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId(`hold|create|p3|${interaction.user.id}`).setLabel('Option 3').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId(`hold|create|custom|${interaction.user.id}`).setLabel('Custom').setStyle(ButtonStyle.Secondary)
+    ...buttonConfigs.map(cfg => new ButtonBuilder()
+      .setCustomId(`hold|create|${cfg.id}|${interaction.user.id}`)
+      .setLabel(cfg.label)
+      .setStyle(cfg.style))
   );
   return interaction.reply({ embeds: [e], components: [row] });
 }
