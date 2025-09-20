@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { clearActiveRequest } from '../db.auto.mjs';
 
-export default async function handleRequestRejectModal(interaction) {
+export default async function handleRequestRejectModal(interaction, ctx) {
   const parts = interaction.customId.split('|');
   const messageId = parts[2];
   const targetId = parts[3];
@@ -24,11 +24,16 @@ export default async function handleRequestRejectModal(interaction) {
       new ButtonBuilder().setCustomId(`req|done|${targetId}|${type}|${amount}`).setLabel('Request Complete').setStyle(ButtonStyle.Success).setDisabled(true),
       new ButtonBuilder().setCustomId(`req|reject|${targetId}|${type}|${amount}`).setLabel('Reject Request').setStyle(ButtonStyle.Danger).setDisabled(true)
     );
-    await msg.edit({ embeds: [embed], components: [row] });
+    const payload = ctx?.kittenizePayload ? ctx.kittenizePayload({ embeds: [embed], components: [row] }) : { embeds: [embed], components: [row] };
+    await msg.edit(payload);
   try { await clearActiveRequest(interaction.guild.id, targetId); } catch {}
     try {
       const user = await interaction.client.users.fetch(targetId);
-      await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by ${interaction.user.tag}. Reason: ${reason}`);
+      let message = `❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by ${interaction.user.tag}. Reason: ${reason}`;
+      if (typeof ctx?.kittenizeText === 'function') {
+        message = ctx.kittenizeText(message);
+      }
+      await user.send(message);
       // await user.send(`❌ My sweet Kitten <@${interaction.user.id}> had to decline your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips). Reason: ${reason}`);
     } catch {}
     return interaction.reply({ content: '✅ Request rejected and user notified.', ephemeral: true });
