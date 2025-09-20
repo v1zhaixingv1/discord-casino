@@ -16,7 +16,6 @@ export default async function handleRequestRejectModal(interaction) {
     const fields = Array.isArray(orig?.fields) ? orig.fields.map(f => ({ name: f.name, value: f.value, inline: f.inline })) : [];
     const idx = fields.findIndex(f => f.name === 'Status');
     const statusText = `Rejected by <@${interaction.user.id}> — Reason: ${reason}`;
-    // const statusText = `Rejected by Kitten — Reason: ${reason}`;
     if (idx >= 0) fields[idx].value = statusText; else fields.push({ name: 'Status', value: statusText });
     embed.setFields(fields);
     const row = new ActionRowBuilder().addComponents(
@@ -29,7 +28,6 @@ export default async function handleRequestRejectModal(interaction) {
     try {
       const user = await interaction.client.users.fetch(targetId);
       await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by ${interaction.user.tag}. Reason: ${reason}`);
-      // await user.send(`❌ Your request (${type === 'buyin' ? 'Buy In' : 'Cash Out'} ${amount.toLocaleString()} Chips) was rejected by Kitten. Reason: ${reason}`);
     } catch {}
     return interaction.reply({ content: '✅ Request rejected and user notified.', ephemeral: true });
   } catch (e) {

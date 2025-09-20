@@ -11,7 +11,6 @@ export default async function handleLeaderboard(interaction) {
   const lines = rows.map((r, i) => {
     const rank = i < 3 ? medals[i] : `#${i + 1}`;
     return `${rank} <@${r.discord_id}> — **${fmt.format(Number(r.chips || 0))}**`;
-    // return `${rank} Kitten — **${fmt.format(Number(r.chips || 0))}**`;
   });
   const title = `🏆 Chip Leaderboard (Top ${rows.length})`;
   return interaction.reply({ content: `**${title}**\n${lines.join('\n')}` });

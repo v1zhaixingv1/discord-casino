@@ -55,14 +55,12 @@ export function buildTableEmbed(state) {
   const seated = state.seats.map((s, i) => {
     const tags = [ state.buttonIndex===i ? '🔘' : null, s.sitOut ? '(sit‑out)' : null ].filter(Boolean).join(' ');
     return `Seat ${i+1}: <@${s.userId}> — **${s.stack}** ${tags}`.trim();
-    // return `Seat ${i+1}: Kitten — **${s.stack}** ${tags}`.trim();
   });
   e.addFields({ name: 'Players', value: seated.length ? seated.join('\n') : '_No players yet_' });
   if (state.handNo) {
     e.addFields({ name: 'Hand', value: `#${state.handNo} • Pot: **${state.pot || 0}**` });
     try {
       const lines = state.seats.map((s,i)=>`Seat ${i+1}${state.buttonIndex===i?' 🔘':''}: <@${s.userId}> — Stack **${s.stack}** • Bet **${s.betRound||0}**${s.folded?' (folded)':''}${s.allIn?' (all-in)':''}`);
-      // const lines = state.seats.map((s,i)=>`Seat ${i+1}${state.buttonIndex===i?' 🔘':''}: Kitten — Stack **${s.stack}** • Bet **${s.betRound||0}**${s.folded?' (folded)':''}${s.allIn?' (all-in)':''}`);
       e.addFields({ name: 'Bets', value: lines.join('\n') });
     } catch {}
     // Action/Timer details are posted as a separate notice message, not in the embed
@@ -233,7 +231,6 @@ async function kickHostForInactivity(client, state) {
       }
     }
     await announce(client, state, `🚫 Host <@${hostId}> removed due to 10 minutes of inactivity.${state.hostId ? ` New host: <@${state.hostId}>.` : ''}`);
-    // await announce(client, state, `🚫 Host Kitten removed due to 10 minutes of inactivity.${state.hostId ? ` New host: Kitten.` : ''}`);
     // Schedule kick timer for new host (if any)
     scheduleHostKick(client, state, 10 * 60 * 1000);
   } catch {}
@@ -468,7 +465,6 @@ function armActionTimer(client, state, ms = 30000) {
     try {
       const ts = Math.floor(state.actionDeadline / 1000);
       await postOrEditNotice(client, state, `⏰ <@${state.actionUserId}>, it's your turn to act • <t:${ts}:R>`);
-      // await postOrEditNotice(client, state, `⏰ Kitten, it's your turn to act • <t:${ts}:R>`);
     } catch {}
   })();
   // Schedule 10-second warning
@@ -480,7 +476,6 @@ function armActionTimer(client, state, ms = 30000) {
       if (!cur || cur.userId !== state.actionUserId) return;
       const ts = Math.floor(state.actionDeadline / 1000);
       await postOrEditNotice(client, state, `⏳ <@${state.actionUserId}> 10 seconds left to act • <t:${ts}:R>`);
-      // await postOrEditNotice(client, state, `⏳ Kitten 10 seconds left to act • <t:${ts}:R>`);
     } catch {}
   }, Math.max(0, ms - 10000));
   state.actionTimer = setTimeout(async () => {
@@ -682,7 +677,6 @@ function showdown(state) {
   const bestOverall = overall[0]?.res;
   const topIdx = overall.filter(x => compareHands(x.res, bestOverall) === 0).map(x => x.idx);
   const labels = topIdx.map(i => `<@${state.seats[i].userId}>`).join(', ');
-  // const labels = topIdx.map(i => `Kitten`).join(', ');
   const label = `Showdown — ${labels}${topIdx.length>1?' (split)':''}`;
   state.pot = 0; state.phase = 'COMPLETE';
   return { winners: topIdx, label: bestOverall ? `${label} • ${bestOverall.label}` : label, payouts, pots: potResults, rake };
@@ -881,7 +875,6 @@ async function startHandAuto(client, state) {
           }
           const seat = state.seats.splice(i, 1)[0];
           if (seat) announce(interaction.client, state, `🚫 <@${seat.userId}> removed after missing two big blinds.`);
-          // if (seat) announce(interaction.client, state, `🚫 Kitten removed after missing two big blinds.`);
         } catch {}
       }
     }
@@ -897,7 +890,6 @@ async function startHandAuto(client, state) {
       try { await escrowCommit(state.channelId, seat.userId, state.handDbId, 'PREFLOP', pay); } catch {}
       if (pay < amt) seat.allIn = true;
       return `${label} <@${seat.userId}> ${pay}`;
-      // return `${label} Kitten ${pay}`;
     };
     const postLines = (await Promise.all([
       post(sbIndex, state.sb, 'SB'),
@@ -911,7 +903,6 @@ async function startHandAuto(client, state) {
   try { armActionTimer(client, state, 30000); } catch {}
   const toPing = state.seats[state.toAct]?.userId;
     const payload = buildTablePayload(state, `▶️ Hand #${state.handNo} started. ${postLines.join(' • ')}. <@${toPing}> to act.\n• Use "Peek Hand" to view your cards (ephemeral).`);
-    // const payload = buildTablePayload(state, `▶️ Hand #${state.handNo} started. ${postLines.join(' • ')}. Kitten to act.\n• Use "Peek Hand" to view your cards (ephemeral).`);
     await updateTableCard(client, state, payload);
   } catch (e) { /* noop */ }
 }
@@ -960,7 +951,6 @@ function buildResultEmbed(state, result) {
       const kick = kickerTextFor(best);
       const bestLabel = best?.label ? ` • ${best.label}${kick ? ` — ${kick}` : ''}` : '';
       return `• <@${userId}> — **+${fmt.format(p.amount)}** — Hand: **${cards}**${bestLabel}`;
-      // return `• Kitten — **+${fmt.format(p.amount)}** — Hand: **${cards}**${bestLabel}`;
     });
     if (lines.length) e.addFields({ name: 'Winners', value: lines.join('\n') });
     // Side pot breakdown (per pot)
@@ -969,7 +959,6 @@ function buildResultEmbed(state, result) {
         const title = i === 0 ? 'Main Pot' : `Side Pot ${i}`;
         const potFmt = fmt.format(pot.amount || 0);
         const winners = (pot.winners || []).map(w => ` <@${state.seats[w.idx]?.userId}> +${fmt.format(w.amount)}`).join('\n') || '_no eligible winners_';
-        // const winners = (pot.winners || []).map(w => ` Kitten +${fmt.format(w.amount)}`).join('\n') || '_no eligible winners_';
         e.addFields({ name: `${title} — ${potFmt}`, value: winners });
       });
     }
@@ -1056,7 +1045,6 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
       type: ChannelType.GuildText,
       parent: casino_category_id,
       reason: `Hold'em table by ${interaction.user.tag}`,
-      // reason: `Hold'em table by Kitten`,
       permissionOverwrites: overwrites
     });
   } catch (e) {
@@ -1067,7 +1055,6 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
         type: ChannelType.GuildText,
         parent: casino_category_id,
         reason: `Hold'em table by ${interaction.user.tag} (fallback without overwrites)`
-        // reason: `Hold'em table by Kitten (fallback without overwrites)`
       });
     } catch (err) {
       console.error('holdem channel create fallback error:', err);
@@ -1107,7 +1094,6 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
   let sent = null;
   try {
     sent = await tableChannel.send({ content: `Host: <@${interaction.user.id}>`, embeds: [tableEmbed], components: [row] });
-    // sent = await tableChannel.send({ content: `Host: Kitten`, embeds: [tableEmbed], components: [row] });
     state.msgId = sent.id;
     state.msgChannelId = sent.channelId;
   } catch (e) { console.error('send table card error:', e); }
@@ -1121,7 +1107,6 @@ export async function hostTable(interaction, ctx, { sb, bb, min, max, cap, rakeB
       .setTitle('♠♥♦♣ Hold’em Table Created')
       .setColor(0x57F287)
       .setDescription(`Host: <@${interaction.user.id}>\nChannel: <#${tableChannel.id}>`)
-      // .setDescription(`Host: Kitten\nChannel: <#${tableChannel.id}>`)
       .addFields(
         { name: 'Blinds', value: `SB **${sb}** • BB **${bb}**`, inline: true },
         { name: 'Buy‑in', value: `Min **${min}** • Max **${max}**`, inline: true },
@@ -1326,7 +1311,6 @@ export async function startHand(interaction, ctx) {
     }
   });
   if (toRemove.length) { toRemove.sort((a,b)=>b-a).forEach(i => { try { const r = state.seats.splice(i,1)[0]; if (r) announce(interaction.client, state, `🚫 <@${r.userId}> removed after missing two big blinds.`); } catch {} }); }
-  // if (toRemove.length) { toRemove.sort((a,b)=>b-a).forEach(i => { try { const r = state.seats.splice(i,1)[0]; if (r) announce(interaction.client, state, `🚫 Kitten removed after missing two big blinds.`); } catch {} }); }
   if (state.seats[bbIndex]?.waitForBB) { try { state.seats[bbIndex].waitForBB = false; } catch {} }
   const post = async (i, amt, label) => {
     const seat = state.seats[i];
@@ -1339,7 +1323,6 @@ export async function startHand(interaction, ctx) {
     try { await escrowCommit(state.channelId, seat.userId, state.handDbId, 'PREFLOP', pay); } catch {}
     if (pay < amt) seat.allIn = true;
     return `${label} <@${seat.userId}> ${pay}`;
-    // return `${label} Kitten ${pay}`;
   };
   const postLines = (await Promise.all([
     post(sbIndex, state.sb, 'SB'),
@@ -1358,7 +1341,6 @@ export async function startHand(interaction, ctx) {
   try { armActionTimer(interaction.client, state, 30000); } catch {}
   const toPing = state.seats[state.toAct]?.userId;
   const payload = buildTablePayload(state, `▶️ Hand #${state.handNo} started. ${postLines.join(' • ')}. <@${toPing}> to act.\n• Use "Peek Hand" to view your cards (ephemeral).`);
-  // const payload = buildTablePayload(state, `▶️ Hand #${state.handNo} started. ${postLines.join(' • ')}. Kitten to act.\n• Use "Peek Hand" to view your cards (ephemeral).`);
   if (interaction.isButton && interaction.isButton()) {
     if (interaction.deferred || interaction.replied) {
       try { return await interaction.editReply(payload); } catch {}
@@ -1587,7 +1569,6 @@ export async function onHoldemCustomModal(interaction, ctx) {
         .setTitle('♠♥♦♣ Hold’em Table Created')
         .setColor(0x57F287)
         .setDescription(`Host: <@${interaction.user.id}>\nChannel: <#${state.msgChannelId || state.channelId}>`)
-        // .setDescription(`Host: Kitten\nChannel: <#${state.msgChannelId || state.channelId}>`)
         .addFields(
           { name: 'Blinds', value: `SB **${sb}** • BB **${bb}**`, inline: true },
           { name: 'Buy‑in', value: `Min **${min}** • Max **${max}**`, inline: true },

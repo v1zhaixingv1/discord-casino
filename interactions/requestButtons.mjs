@@ -18,9 +18,7 @@ export default async function handleRequestButtons(interaction, ctx) {
     const fields = Array.isArray(orig?.fields) ? orig.fields.map(f => ({ name: f.name, value: f.value, inline: f.inline })) : [];
     const idx = fields.findIndex(f => f.name === 'Status');
     if (idx >= 0) fields[idx].value = `In Progress — Taken by <@${interaction.user.id}>`;
-    // if (idx >= 0) fields[idx].value = `In Progress — Taken by Kitten`;
     else fields.push({ name: 'Status', value: `In Progress — Taken by <@${interaction.user.id}>` });
-    // else fields.push({ name: 'Status', value: `In Progress — Taken by Kitten` });
     embed.setFields(fields);
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setCustomId(`req|take|${targetId}|${type}|${amount}`).setLabel('Take Request').setStyle(ButtonStyle.Primary).setDisabled(true),
@@ -39,30 +37,24 @@ export default async function handleRequestButtons(interaction, ctx) {
         await ctx.postCashLog(interaction, [
           `🪙 **Buy-in (Request)**`,
           `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          // `User: Kitten • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
         try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by ${interaction.user.tag}.`); } catch {}
-        // try { const user = await interaction.client.users.fetch(targetId); await user.send(`🪙 Buy-in: You received ${ctx.chipsAmount(amount)}. Processed by Kitten.`); } catch {}
       } else if (type === 'cashout') {
         const { chips } = await burnFromUser(guildId, targetId, amount, 'request cashout', interaction.user.id);
         await ctx.postCashLog(interaction, [
           `💸 **Cash Out (Request)**`,
           `User: <@${targetId}> • Amount: **${ctx.chipsAmount(amount)}**`,
-          // `User: Kitten • Amount: **${ctx.chipsAmount(amount)}**`,
           `User Chips (after): **${ctx.chipsAmount(chips)}**`
         ]);
         try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by ${interaction.user.tag}.`); } catch {}
-        // try { const user = await interaction.client.users.fetch(targetId); await user.send(`💸 Cash Out: ${ctx.chipsAmount(amount)} removed from your balance. Processed by Kitten.`); } catch {}
       } else {
         return interaction.reply({ content: '❌ Unknown request type.', ephemeral: true });
       }
       const fields = Array.isArray(orig?.fields) ? orig.fields.map(f => ({ name: f.name, value: f.value, inline: f.inline })) : [];
       const idx = fields.findIndex(f => f.name === 'Status');
       if (idx >= 0) fields[idx].value = `Completed by <@${interaction.user.id}>`;
-      // if (idx >= 0) fields[idx].value = `Completed by Kitten`;
       else fields.push({ name: 'Status', value: `Completed by <@${interaction.user.id}>` });
-      // else fields.push({ name: 'Status', value: `Completed by Kitten` });
       embed.setFields(fields);
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId(`req|take|${targetId}|${type}|${amount}`).setLabel('Take Request').setStyle(ButtonStyle.Primary).setDisabled(true),

@@ -15,12 +15,10 @@ export default async function handleTakeCredits(interaction, ctx) {
     await ctx.postCashLog(interaction, [
       `🔥 **Burn Credits**`,
       `User: <@${target.id}> • Amount: **${new Intl.NumberFormat('en-US').format(amount)}** credits${reason ? ` • Reason: ${reason}` : ''}`,
-      // `User: Kitten • Amount: **${new Intl.NumberFormat('en-US').format(amount)}** credits${reason ? ` • Reason: ${reason}` : ''}`,
       `User Credits (after): **${new Intl.NumberFormat('en-US').format(credits)}**`
     ]);
     const fmt = new Intl.NumberFormat('en-US');
     return interaction.reply({ content: `🔥 Burned **${fmt.format(amount)}** Credits from <@${target.id}>${reason ? ` (${reason})` : ''}.\n• <@${target.id}>'s Credits: **${fmt.format(credits)}**`, ephemeral: true });
-    // return interaction.reply({ content: `🔥 Burned **${fmt.format(amount)}** Credits from Kitten${reason ? ` (${reason})` : ''}.\n• Kitten's Credits: **${fmt.format(credits)}**`, ephemeral: true });
   } catch (err) {
     if (err.message === 'INSUFFICIENT_USER_CREDITS') {
       return interaction.reply({ content: '❌ That user does not have enough Credits.', ephemeral: true });
