@@ -285,11 +285,39 @@ function kittenizeReplyArg(arg) {
   if (typeof arg === 'string') return kittenizeTextContent(arg);
   if (!arg || typeof arg !== 'object') return arg;
   if (Array.isArray(arg)) return arg.map(kittenizeReplyArg);
+  const transformEmbed = (embed) => {
+    try {
+      let data;
+      if (embed && typeof embed.toJSON === 'function') data = embed.toJSON();
+      else data = JSON.parse(JSON.stringify(embed));
+      if (!data || typeof data !== 'object') return embed;
+
+      const transform = (value) => kittenizeTextContent(value, { addPrefix: false, addSuffix: false });
+      if (typeof data.title === 'string') data.title = transform(data.title);
+      if (typeof data.description === 'string') data.description = transform(data.description);
+      if (data.fields && Array.isArray(data.fields)) {
+        data.fields = data.fields.map(field => {
+          const f = { ...field };
+          if (typeof f.value === 'string') f.value = transform(f.value);
+          return f;
+        });
+      }
+      if (data.footer?.text) data.footer.text = transform(data.footer.text);
+      if (data.author?.name) data.author.name = transform(data.author.name);
+      return EmbedBuilder.from(data);
+    } catch {
+      return embed;
+    }
+  };
   if (typeof arg.content === 'string') {
     const transformed = kittenizeTextContent(arg.content);
     if (transformed !== arg.content) {
       return { ...arg, content: transformed };
     }
+  }
+  if (Array.isArray(arg.embeds)) {
+    const embeds = arg.embeds.map(transformEmbed);
+    return { ...arg, embeds };
   }
   return arg;
 }
