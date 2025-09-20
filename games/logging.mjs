@@ -95,7 +95,14 @@ export async function finalizeSessionUIByIds(client, guildId, userId) {
     const msg = await ch.messages.fetch(s.msgId).catch(() => null);
     if (!msg) return;
     const emb = await buildSessionEndEmbed(guildId, userId);
-    await msg.edit({ embeds: [emb], components: [] }).catch(() => {});
+    let payload = { embeds: [emb], components: [] };
+    try {
+      const settings = await getGuildSettings(guildId);
+      if (settings?.kitten_mode_enabled) {
+        payload = kittenizeReplyArg(payload);
+      }
+    } catch {}
+    await msg.edit(payload).catch(() => {});
   } catch (e) { console.error('finalizeSessionUIByIds error:', e); }
 }
 
