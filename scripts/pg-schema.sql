@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS guild_settings (
   log_channel_id        TEXT,
   cash_log_channel_id   TEXT,
   request_channel_id    TEXT,
+  auto_ban_channel_id   TEXT,
   request_cooldown_sec  INTEGER NOT NULL DEFAULT 0,
   logging_enabled       BOOLEAN NOT NULL DEFAULT FALSE,
   max_ridebus_bet       INTEGER NOT NULL DEFAULT 1000,

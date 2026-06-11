@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Events, EmbedBuilder, MessageFlags, AuditLogEvent, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { Client, GatewayIntentBits, Events, EmbedBuilder, MessageFlags, AuditLogEvent, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { slotSessions, buildSlotsPaytableEmbed as buildSlotsPaytableEmbedMod, runSlotsSpin as runSlotsSpinMod, SLOTS_LINES as SLOTS_LINESMod } from './games/slots.mjs';
 import { rouletteSessions, rouletteSummaryEmbed as rouletteSummaryEmbedMod, rouletteTypeSelectRow as rouletteTypeSelectRowMod, startRouletteSession as startRouletteSessionMod, spinRoulette as spinRouletteMod, rouletteWins as rouletteWinsMod, roulettePayoutMult as roulettePayoutMultMod } from './games/roulette.mjs';
 import { ridebusGames, startRideBus as startRideBusMod, wagerAt as wagerAtMod } from './games/ridebus.mjs';
@@ -85,6 +85,7 @@ import cmdSetGameLogChannel from './commands/setgamelogchannel.mjs';
 import cmdSetCashLog from './commands/setcashlog.mjs';
 import cmdSetRequestChannel from './commands/setrequestchannel.mjs';
 import cmdSetUpdateChannel from './commands/setupdatech.mjs';
+import cmdSetAutoBan from './commands/setautoban.mjs';
 import cmdRequestTimer from './commands/requesttimer.mjs';
 import cmdRequest from './commands/request.mjs';
 import cmdHelp from './commands/help.mjs';
@@ -241,6 +242,7 @@ const SETTINGS_MUTATION_COMMANDS = new Set([
   'setcashlog',
   'setrequestchannel',
   'setupdatech',
+  'setautoban',
   'requesttimer',
   'setmaxbet',
   'setrake',
@@ -700,7 +702,7 @@ function patchInteractionResponseMethods(interaction) {
 }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages]
 });
 client.botVersion = BOT_VERSION;
 client.pushUpdateAnnouncement = (guildId, details = {}) => pushUpdateAnnouncement(client, guildId, details);
@@ -950,6 +952,40 @@ client.on(Events.GuildAuditLogEntryCreate, async (entry, guild) => {
     await sendGuildWelcomeDm(guild, { inviter: executor, source: 'auditLog' });
   } catch (err) {
     console.error(`Failed to process audit log welcome for guild ${guild?.id}`, err);
+  }
+});
+
+client.on(Events.MessageCreate, async (message) => {
+  try {
+    if (!message?.guild || !message?.author || message.author.bot) return;
+
+    const guildId = message.guild.id;
+    const settings = await getGuildSettingsCached(guildId);
+    const autoBanChannelId = settings?.auto_ban_channel_id || null;
+    if (!autoBanChannelId || message.channelId !== autoBanChannelId) return;
+
+    const member = message.member || await message.guild.members.fetch(message.author.id).catch(() => null);
+    if (!member) return;
+    if (member.permissions?.has?.(PermissionFlagsBits.Administrator)) return;
+
+    const me = message.guild.members.me || await message.guild.members.fetchMe().catch(() => null);
+    if (!me?.permissions?.has?.(PermissionFlagsBits.BanMembers)) {
+      console.warn(`Auto-ban skipped in guild ${guildId}: bot lacks Ban Members permission.`);
+      return;
+    }
+
+    if (!member.bannable) {
+      console.warn(`Auto-ban skipped in guild ${guildId}: user ${member.id} is not bannable.`);
+      return;
+    }
+
+    await member.ban({
+      deleteMessageSeconds: 24 * 60 * 60,
+      reason: `Auto-ban channel violation in #${message.channel?.name || message.channelId}`
+    });
+    console.log(`Auto-banned user ${member.id} in guild ${guildId} for posting in configured auto-ban channel ${autoBanChannelId}.`);
+  } catch (err) {
+    console.error('Auto-ban enforcement failed:', err);
   }
 });
 
@@ -1422,6 +1458,7 @@ const commandHandlers = {
   setcashlog: cmdSetCashLog,
   setrequestchannel: cmdSetRequestChannel,
   setupdatech: cmdSetUpdateChannel,
+  setautoban: cmdSetAutoBan,
   requesttimer: cmdRequestTimer,
   request: cmdRequest,
   help: cmdHelp,

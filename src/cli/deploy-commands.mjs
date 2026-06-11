@@ -181,6 +181,14 @@ const commands = [
     ]
   },
   {
+    name: 'setautoban',
+    description: 'Set a channel where non-admin user messages trigger permanent bans (admin only).',
+    default_member_permissions: ADMIN_PERMS,
+    options: [
+      { name: 'channel', description: 'Select a text channel', type: 7, channel_types: [0,5,10,11,12], required: true }
+    ]
+  },
+  {
     name: 'requesttimer',
     description: 'Set the cooldown (seconds) between /request submissions (moderator only).',
     options: [

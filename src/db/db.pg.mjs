@@ -604,6 +604,14 @@ try {
 }
 
 try {
+  if (await tableExists('guild_settings') && !(await tableHasColumn('guild_settings', 'auto_ban_channel_id'))) {
+    await q('ALTER TABLE guild_settings ADD COLUMN auto_ban_channel_id TEXT');
+  }
+} catch (err) {
+  console.error('Failed to ensure auto_ban_channel_id column on guild_settings:', err);
+}
+
+try {
   if (await tableExists('vote_rewards') && !(await tableHasColumn('vote_rewards', 'external_id'))) {
     await q('ALTER TABLE vote_rewards ADD COLUMN external_id TEXT');
   }
@@ -2625,14 +2633,15 @@ export async function cartelClearDealerPending(guildId, entries = []) {
   }
 }
 
-// --- Guild settings (unchanged structure) ---
+// --- Guild settings ---
 function normalizeSettings(row) {
-  if (!row) return { log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, update_channel_id: null, request_cooldown_sec: 0, logging_enabled: 0, max_ridebus_bet: 1000, casino_category_id: null, holdem_rake_bps: 0, holdem_rake_cap: 0, kitten_mode_enabled: 0 };
+  if (!row) return { log_channel_id: null, cash_log_channel_id: null, request_channel_id: null, update_channel_id: null, auto_ban_channel_id: null, request_cooldown_sec: 0, logging_enabled: 0, max_ridebus_bet: 1000, casino_category_id: null, holdem_rake_bps: 0, holdem_rake_cap: 0, kitten_mode_enabled: 0 };
   return {
     log_channel_id: row.log_channel_id || null,
     cash_log_channel_id: row.cash_log_channel_id || null,
     request_channel_id: row.request_channel_id || null,
     update_channel_id: row.update_channel_id || null,
+    auto_ban_channel_id: row.auto_ban_channel_id || null,
     request_cooldown_sec: Number(row.request_cooldown_sec || 0),
     logging_enabled: row.logging_enabled ? 1 : 0,
     max_ridebus_bet: Number(row.max_ridebus_bet || 1000),
@@ -2649,7 +2658,7 @@ export async function getGuildSettings(guildId) {
 }
 
 async function upsertGuildSettings(fields) {
-  const keys = ['log_channel_id','cash_log_channel_id','request_channel_id','update_channel_id','request_cooldown_sec','logging_enabled','max_ridebus_bet','casino_category_id','holdem_rake_bps','holdem_rake_cap','kitten_mode_enabled'];
+  const keys = ['log_channel_id','cash_log_channel_id','request_channel_id','update_channel_id','auto_ban_channel_id','request_cooldown_sec','logging_enabled','max_ridebus_bet','casino_category_id','holdem_rake_bps','holdem_rake_cap','kitten_mode_enabled'];
   const vals = keys.map(k => fields[k] ?? null);
   await q('INSERT INTO guild_settings (guild_id) VALUES ($1) ON CONFLICT (guild_id) DO NOTHING', [fields.guild_id]);
   const updates = keys.map((k, i) => `${k} = COALESCE($${i + 2}, ${k})`).join(', ');
@@ -2660,6 +2669,7 @@ export async function setGameLogChannel(guildId, channelId) { await upsertGuildS
 export async function setCashLogChannel(guildId, channelId) { await upsertGuildSettings({ guild_id: guildId, cash_log_channel_id: channelId }); return getGuildSettings(guildId); }
 export async function setRequestChannel(guildId, channelId) { await upsertGuildSettings({ guild_id: guildId, request_channel_id: channelId }); return getGuildSettings(guildId); }
 export async function setUpdateChannel(guildId, channelId) { await upsertGuildSettings({ guild_id: guildId, update_channel_id: channelId }); return getGuildSettings(guildId); }
+export async function setAutoBanChannel(guildId, channelId) { await upsertGuildSettings({ guild_id: guildId, auto_ban_channel_id: channelId }); return getGuildSettings(guildId); }
 export async function setRequestTimer(guildId, seconds) { await upsertGuildSettings({ guild_id: guildId, request_cooldown_sec: Math.max(0, Number(seconds) || 0) }); return getGuildSettings(guildId); }
 export async function setLoggingEnabled(guildId, enabled) { await upsertGuildSettings({ guild_id: guildId, logging_enabled: !!enabled }); return getGuildSettings(guildId); }
 export async function setMaxRidebusBet(guildId, amount) { await upsertGuildSettings({ guild_id: guildId, max_ridebus_bet: Math.max(1, Number(amount) || 1) }); return getGuildSettings(guildId); }

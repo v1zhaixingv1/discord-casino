@@ -17,6 +17,7 @@
   { "name": "8ball", "description": "Only the #1 High Roller can shake the 8-ball for answers." },
   { "name": "setrequestchannel", "description": "Choose the channel where /request submissions are posted." },
   { "name": "setupdatech", "description": "Choose the channel where update announcements are posted." },
+  { "name": "setautoban", "description": "Choose the channel where non-admin user messages trigger permanent bans." },
   { "name": "requesttimer", "description": "Set the cooldown between /request submissions in seconds." },
   { "name": "blackjack", "description": "Sit at the High or Low stakes blackjack table vs the house." },
   { "name": "slots", "description": "Spin a 5×3 video slot with 20 fixed lines." },
